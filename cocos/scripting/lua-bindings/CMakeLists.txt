@@ -3,8 +3,6 @@ set(cocos_root ${COCOS2DX_ROOT_PATH})
 set(lua_bindings_manual_headers
     manual/CCComponentLua.h
     manual/3d/lua_cocos2dx_3d_manual.h
-    manual/cocosbuilder/CCBProxy.h
-    manual/cocosbuilder/lua_cocos2dx_cocosbuilder_manual.h
     manual/CCLuaStack.h
     manual/CCLuaEngine.h
     manual/lua_module_register.h
@@ -30,8 +28,6 @@ set(lua_bindings_manual_headers
     manual/Cocos2dxLuaLoader.h
     manual/CCLuaValue.h
     manual/physics3d/lua_cocos2dx_physics3d_manual.h
-    manual/cocostudio/lua-cocos-studio-conversions.h
-    manual/cocostudio/CustomGUIReader.h
     manual/ui/lua_cocos2dx_ui_manual.hpp
     manual/ui/lua_cocos2dx_experimental_video_manual.hpp
     manual/controller/lua_cocos2dx_controller_manual.hpp
@@ -55,13 +51,7 @@ set(lua_bindings_manual_files
     manual/cocos2d/lua_cocos2dx_physics_manual.cpp
     manual/cocosdenshion/lua_cocos2dx_cocosdenshion_manual.cpp
     manual/3d/lua_cocos2dx_3d_manual.cpp
-    manual/cocosbuilder/CCBProxy.cpp
-    manual/cocosbuilder/lua_cocos2dx_cocosbuilder_manual.cpp
     manual/cocosdenshion/lua_cocos2dx_cocosdenshion_manual.cpp
-    manual/cocostudio/CustomGUIReader.cpp
-    manual/cocostudio/lua_cocos2dx_coco_studio_manual.cpp
-    manual/cocostudio/lua-cocos-studio-conversions.cpp
-    manual/cocostudio/lua_cocos2dx_csloader_manual.cpp
     manual/controller/lua_cocos2dx_controller_manual.cpp
     manual/extension/lua_cocos2dx_extension_manual.cpp
     manual/network/lua_extensions.c
@@ -86,7 +76,6 @@ set(lua_bindings_auto_headers
     auto/lua_cocos2dx_controller_auto.hpp
     auto/lua_cocos2dx_spine_auto.hpp
     auto/lua_cocos2dx_experimental_webview_auto.hpp
-    auto/lua_cocos2dx_studio_auto.hpp
     auto/lua_cocos2dx_auto.hpp
     auto/lua_cocos2dx_experimental_video_auto.hpp
     auto/lua_cocos2dx_navmesh_auto.hpp
@@ -96,13 +85,11 @@ set(lua_bindings_auto_headers
     auto/lua_cocos2dx_ui_auto.hpp
     auto/lua_cocos2dx_physics_auto.hpp
     auto/lua_cocos2dx_extension_auto.hpp
-    auto/lua_cocos2dx_cocosbuilder_auto.hpp
     )
 
 set(lua_bindings_auto_files
     auto/lua_cocos2dx_3d_auto.cpp
     auto/lua_cocos2dx_auto.cpp
-    auto/lua_cocos2dx_cocosbuilder_auto.cpp
     auto/lua_cocos2dx_cocosdenshion_auto.cpp
     auto/lua_cocos2dx_controller_auto.cpp
     auto/lua_cocos2dx_experimental_auto.cpp
@@ -110,13 +97,65 @@ set(lua_bindings_auto_files
     auto/lua_cocos2dx_extension_auto.cpp
     auto/lua_cocos2dx_physics_auto.cpp
     auto/lua_cocos2dx_spine_auto.cpp
-    auto/lua_cocos2dx_studio_auto.cpp
     auto/lua_cocos2dx_csloader_auto.cpp
     auto/lua_cocos2dx_ui_auto.cpp
     auto/lua_cocos2dx_audioengine_auto.cpp
     auto/lua_cocos2dx_physics3d_auto.cpp
     auto/lua_cocos2dx_navmesh_auto.cpp
     )
+
+option(EXPORT_EDITOR_COCOSBUILDER "Export cocosbuilder when BUILD_EDITOR_COCOSBUILDER is on" ON)
+option(EXPORT_EDITOR_COCOSTUDIO "Export cocostudio when BUILD_EDITOR_COCOSTUDIO is on" ON)
+
+if(NOT BUILD_EDITOR_COCOSBUILDER)
+    set(EXPORT_EDITOR_COCOSBUILDER OFF)
+endif()
+if(EXPORT_EDITOR_COCOSBUILDER)
+    set(lua_bindings_manual_headers
+        ${lua_bindings_manual_headers}
+        manual/cocosbuilder/CCBProxy.h
+        manual/cocosbuilder/lua_cocos2dx_cocosbuilder_manual.h
+        )
+    set(lua_bindings_manual_files
+        ${lua_bindings_manual_files}
+        manual/cocosbuilder/CCBProxy.cpp
+        manual/cocosbuilder/lua_cocos2dx_cocosbuilder_manual.cpp
+        )
+    set(lua_bindings_auto_headers
+        ${lua_bindings_auto_headers}
+        auto/lua_cocos2dx_cocosbuilder_auto.hpp
+        )
+    set(lua_bindings_auto_files
+        ${lua_bindings_auto_files}
+        auto/lua_cocos2dx_cocosbuilder_auto.cpp
+        )
+endif()
+
+if(NOT BUILD_EDITOR_COCOSTUDIO)
+    set(EXPORT_EDITOR_COCOSTUDIO OFF)
+endif()
+if(EXPORT_EDITOR_COCOSTUDIO)
+    set(lua_bindings_manual_headers
+        ${lua_bindings_manual_headers}
+        manual/cocostudio/lua-cocos-studio-conversions.h
+        manual/cocostudio/CustomGUIReader.h
+        )
+    set(lua_bindings_manual_files
+        ${lua_bindings_manual_files}
+        manual/cocostudio/CustomGUIReader.cpp
+        manual/cocostudio/lua_cocos2dx_coco_studio_manual.cpp
+        manual/cocostudio/lua-cocos-studio-conversions.cpp
+        manual/cocostudio/lua_cocos2dx_csloader_manual.cpp
+        )
+    set(lua_bindings_auto_headers
+        ${lua_bindings_auto_headers}
+        auto/lua_cocos2dx_studio_auto.hpp
+        )
+    set(lua_bindings_auto_files
+        ${lua_bindings_auto_files}
+        auto/lua_cocos2dx_studio_auto.cpp
+        )
+endif()
 
 if(APPLE)
     # CCLuaObjcBridge.mm needed by ios and mac
@@ -182,6 +221,17 @@ if(WINDOWS)
     target_compile_definitions(luacocos2d PUBLIC _USRLUASTATIC)
 endif()
 
+if(EXPORT_EDITOR_COCOSBUILDER)
+    target_compile_definitions(luacocos2d PUBLIC CC_EXPORT_COCOSBUILDER=1)
+else()
+    target_compile_definitions(luacocos2d PUBLIC CC_EXPORT_COCOSBUILDER=0)
+endif()
+
+if(EXPORT_EDITOR_COCOSTUDIO)
+    target_compile_definitions(luacocos2d PUBLIC CC_EXPORT_COCOSTUDIO=1)
+else()
+    target_compile_definitions(luacocos2d PUBLIC CC_EXPORT_COCOSTUDIO=0)
+endif()
 
 set_target_properties(luacocos2d
                       PROPERTIES
