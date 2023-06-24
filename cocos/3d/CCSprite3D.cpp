@@ -247,10 +247,32 @@ bool Sprite3D::loadFromFile(const std::string& path, NodeDatas* nodedatas, MeshD
             return false;
         }
         
-        auto ret = bundle->loadMeshDatas(*meshdatas)
-            && bundle->loadMaterials(*materialdatas) && bundle->loadNodes(*nodedatas);
+        bool ret;
+        do
+        {
+            ret = bundle->loadMeshDatas(*meshdatas);
+            if (!ret)
+            {
+                CCLOGWARN("Failed to load mesh for: %s ", path.c_str());
+                break;
+            }
+
+            ret = bundle->loadMaterials(*materialdatas);
+            if (!ret)
+            {
+                CCLOGWARN("Failed to load material for: %s ", path.c_str());
+                break;
+            }
+
+            ret = bundle->loadNodes(*nodedatas);
+            if (!ret)
+            {
+                CCLOGWARN("Failed to load nodes for: %s ", path.c_str());
+                break;
+            }
+        } while (false);
+
         Bundle3D::destroyBundle(bundle);
-        
         return ret;
     }
     return false;
