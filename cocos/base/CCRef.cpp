@@ -45,6 +45,7 @@ static void untrackRef(Ref* ref);
 
 Ref::Ref()
 : _referenceCount(1) // when the Ref is created, the reference count of it is 1
+, _weakPtrCounter(nullptr)
 #if CC_ENABLE_SCRIPT_BINDING
 , _luaID (0)
 , _scriptObject(nullptr)
@@ -86,6 +87,12 @@ Ref::~Ref()
     if (_referenceCount != 0)
         untrackRef(this);
 #endif
+
+    if (_weakPtrCounter)
+    {
+		_weakPtrCounter->_target = nullptr;
+		_weakPtrCounter->release();
+    }
 }
 
 void Ref::retain()
@@ -161,6 +168,14 @@ unsigned int Ref::getReferenceCount() const
 {
     return _referenceCount;
 }
+
+Ref::WeakPtrCounter* Ref::getWeakPtrCounter() const
+{
+    if (!_weakPtrCounter)
+        _weakPtrCounter = new (std::nothrow)Ref::WeakPtrCounter(this);
+
+    return _weakPtrCounter;
+};
 
 #if CC_REF_LEAK_DETECTION
 

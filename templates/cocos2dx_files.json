@@ -455,6 +455,7 @@
         "cocos/base/CCRef.cpp", 
         "cocos/base/CCRef.h", 
         "cocos/base/CCRefPtr.h", 
+        "cocos/base/CCWeakPtr.h", 
         "cocos/base/CCScheduler.cpp", 
         "cocos/base/CCScheduler.h", 
         "cocos/base/CCScriptSupport.cpp", 

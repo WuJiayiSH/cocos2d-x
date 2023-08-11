@@ -69,6 +69,8 @@ public:
     }
 };
 
+template <typename T> class WeakPtr;
+
 /**
  * Ref is used for reference count management. If a class inherits from Ref,
  * then it is easy to be shared in different places.
@@ -148,6 +150,37 @@ protected:
     unsigned int _referenceCount;
 
     friend class AutoreleasePool;
+
+    /// support WeakPtr
+    class WeakPtrCounter final
+    {
+    public:
+        WeakPtrCounter(const Ref* target)
+        :_target(const_cast<Ref*>(target))
+        ,_referenceCount(1)
+        {
+        }
+
+        ~WeakPtrCounter() {};
+
+        void retain() {++_referenceCount;};
+        
+        void release() {if (--_referenceCount == 0) delete this;};
+
+        unsigned int getReferenceCount() const {return _referenceCount;};
+
+        /// It is stored without constness, WeakPtr would use it with constness when WeakPtr is constructed by a const Ref*
+		Ref* _target;
+
+    private:
+        unsigned int _referenceCount;
+    };
+
+	WeakPtrCounter* getWeakPtrCounter() const;
+
+    mutable WeakPtrCounter* _weakPtrCounter;
+
+    template <typename T> friend class WeakPtr;
 
 #if CC_ENABLE_SCRIPT_BINDING
 public:
