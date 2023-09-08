@@ -91,6 +91,7 @@ int Label::getFirstWordLen(const std::u32string& utf32Text, int startIndex, int 
 
         if (character == StringUtils::UnicodeCharacters::NewLine
             || (!StringUtils::isUnicodeNonBreaking(character)
+                && !StringUtils::isCJKUnicode(character, true)
                 && (StringUtils::isUnicodeSpace(character)
                     || StringUtils::isCJKUnicode(character))))
         {

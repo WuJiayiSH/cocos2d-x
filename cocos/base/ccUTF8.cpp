@@ -146,17 +146,24 @@ bool isUnicodeSpace(char32_t ch)
     ||  ch == 0x205F || ch == 0x3000;
 }
 
-bool isCJKUnicode(char32_t ch)
+bool isCJKUnicode(char32_t ch, bool isNonBreaking)
 {
-    return (ch >= 0x4E00 && ch <= 0x9FBF)   // CJK Unified Ideographs
-        || (ch >= 0x2E80 && ch <= 0x2FDF)   // CJK Radicals Supplement & Kangxi Radicals
-        || (ch >= 0x2FF0 && ch <= 0x30FF)   // Ideographic Description Characters, CJK Symbols and Punctuation & Japanese
-        || (ch >= 0x3100 && ch <= 0x31BF)   // Korean
-        || (ch >= 0xAC00 && ch <= 0xD7AF)   // Hangul Syllables
-        || (ch >= 0xF900 && ch <= 0xFAFF)   // CJK Compatibility Ideographs
-        || (ch >= 0xFE30 && ch <= 0xFE4F)   // CJK Compatibility Forms
-        || (ch >= 0x31C0 && ch <= 0x4DFF)   // Other extensions
-        || (ch >= 0x1f004 && ch <= 0x1f682);// Emoji
+    if (isNonBreaking)
+    {
+        return (ch >= 0xAC00 && ch <= 0xD7AF);  // Hangul Syllables
+    }
+    else
+    {
+        return (ch >= 0x4E00 && ch <= 0x9FBF)   // CJK Unified Ideographs
+            || (ch >= 0x2E80 && ch <= 0x2FDF)   // CJK Radicals Supplement & Kangxi Radicals
+            || (ch >= 0x2FF0 && ch <= 0x30FF)   // Ideographic Description Characters, CJK Symbols and Punctuation & Japanese
+            || (ch >= 0x3100 && ch <= 0x31BF)   // Korean
+            || (ch >= 0xAC00 && ch <= 0xD7AF)   // Hangul Syllables
+            || (ch >= 0xF900 && ch <= 0xFAFF)   // CJK Compatibility Ideographs
+            || (ch >= 0xFE30 && ch <= 0xFE4F)   // CJK Compatibility Forms
+            || (ch >= 0x31C0 && ch <= 0x4DFF)   // Other extensions
+            || (ch >= 0x1f004 && ch <= 0x1f682);// Emoji
+    }
 }
     
 bool isUnicodeNonBreaking(char32_t ch)

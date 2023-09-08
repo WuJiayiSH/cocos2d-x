@@ -171,13 +171,14 @@ CC_DLL bool isUnicodeSpace(char32_t ch);
 /**
  *  @brief Whether the character is a Chinese/Japanese/Korean character.
  *  @param ch    The unicode character.
+ *  @param isNonBreaking Whether to return true only if the character is also non-breaking character.
  *  @returns     Whether the character is a Chinese character.
  *
  *  @see http://www.searchtb.com/2012/04/chinese_encode.html
  *  @see http://tieba.baidu.com/p/748765987
  *
  */
-CC_DLL bool isCJKUnicode(char32_t ch);
+CC_DLL bool isCJKUnicode(char32_t ch, bool isNonBreaking = false);
     
 /**
  *  @brief Whether the character is a non-breaking character.
