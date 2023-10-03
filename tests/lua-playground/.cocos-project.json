@@ -1,0 +1,39 @@
+{
+    "win32_cfg": {
+        "project_path": "../../build",
+        "sln_file": "cocos2d-win32.sln",
+        "project_name": "lua-playground",
+        "build_cfg_path": "project/proj.win32",
+        "exe_out_dir": "lua-playground"
+    }, 
+    "linux_cfg": {
+        "project_path": "project/proj.linux",
+        "project_name": "lua-playground",
+        "cmake_path": "project"
+    }, 
+    "ios_cfg": {
+        "project_path": "../../build",
+        "project_file": "cocos2d_tests.xcodeproj",
+        "target_name": "lua-playground iOS"
+    }, 
+    "emscripten_cfg": {
+        "project_path": "project/proj.emscripten",
+        "project_name": "lua-playground",
+        "cmake_path": "project"
+    }, 
+    "project_type": "lua", 
+    "has_native": true,
+    "mac_cfg": {
+        "project_path": "../../build",
+        "project_file": "cocos2d_tests.xcodeproj",
+        "target_name": "lua-playground Mac"
+    },
+    "android_cfg": {
+        "project_path": "project/proj.android",
+        "studio_proj_path" : "project/proj.android-studio"
+    },
+    "tizen_cfg" : {
+        "project_path": "project/proj.tizen"
+    },
+    "engine_dir": "../../"
+}

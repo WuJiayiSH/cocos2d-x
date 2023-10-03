@@ -1,0 +1,490 @@
+<!doctype html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Emscripten-Generated Code</title>
+    <style>
+      .emscripten { padding-right: 0; margin-left: auto; margin-right: auto; display: block; }
+      textarea.emscripten { font-family: monospace; display: inline; width: 100%}
+      div.emscripten { margin-left: 280px; text-align: center; color: #ccc;}
+      div.emscripten_status { left: 280px; right: 0px; top: 300px; position: absolute; text-align: center; color: #ccc;}
+      div.emscripten_border { margin-left: 280px; }
+      /* the canvas *must not* have any border or padding, or mouse coords will be wrong */
+      canvas.emscripten { border: 0px none; background-color: black; width: 960px; height: 640px; }
+      table {
+        border-collapse: collapse;
+      }
+      th.filename {
+        width: 200px;
+        text-align: left;
+        color: #0af;
+      }
+      th.actions {
+        width: 70px;
+        text-align: right;
+        color: #0af;
+      }
+      td.filename {
+        width: 200px;
+      }
+      td.actions {
+        width: 70px;
+        text-align: right;
+      }
+      .sidebar {
+        height: 100%;
+        width: 280px;
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        left: 0;
+        overflow-x: hidden;
+        background-color: #222;
+        color: #bbb;
+      }
+      hr {
+        border: none;
+        border-top: 1px solid #444;
+        height: 1px;
+      }
+      a.filename{
+        color: #bbb;
+      }
+      a.filename:hover {
+        color: #0af;
+      }
+      a.dirname{
+        color: #0af;
+      }
+      div.dir_actions{
+        text-align: left;
+        margin-top: 10px;
+      }
+      a.dir_action{
+        color: #ccc;
+        background-color: #444;
+        border: solid 2px #444;
+        text-decoration: none;
+      }
+      a.dir_action:hover {
+        color: #0af;
+      }
+      a.file_action{
+        color: #ccc;
+      }
+      a.file_action:hover {
+        color: #0af;
+      }
+      svg {
+        vertical-align: text-bottom;
+      }
+      div.editor {left: 280px; right: 0px; top: 0px; bottom: 0px; position: absolute; display: none;}
+      div.editor_pane {left: 0px; right: 0px; top: 22px; bottom: 0px; position: absolute; overflow: hidden;}
+      div.editor_close { float: right;}
+      div.editor_header { width: 100%; height: 22px; border: 0px none; background-color: #222; color: #ccc; display: inline-block;}
+      div.imageviewer {left: 280px; right: 0px; top: 0px; bottom: 0px; position: absolute; display: none; background-color: #000000cc;}
+      img.imageviewer {left: 0px; right: 0px; top: 0px; bottom: 0px; position: absolute; margin: auto;}
+      div.imageviewer_close { float: right; color: #ccc;}
+      body {background-color: #444;}
+
+      @-webkit-keyframes rotation {
+        from {-webkit-transform: rotate(0deg);}
+        to {-webkit-transform: rotate(360deg);}
+      }
+      @-moz-keyframes rotation {
+        from {-moz-transform: rotate(0deg);}
+        to {-moz-transform: rotate(360deg);}
+      }
+      @-o-keyframes rotation {
+        from {-o-transform: rotate(0deg);}
+        to {-o-transform: rotate(360deg);}
+      }
+      @keyframes rotation {
+        from {transform: rotate(0deg);}
+        to {transform: rotate(360deg);}
+      }
+
+    </style>
+  </head>
+  <body>
+    <div class="editor" id="editor">
+      <div class="editor_header">
+        <span id="editorPath"></span>
+        <div class="editor_close" id="editorClose" onclick="Cocos2dxHelper.closeEditor()">X</div>
+      </div>
+      <div class="editor_pane" id="editorPane"></div>
+    </div>
+
+    <div class="imageviewer" id="imageViewer">
+      <div class="imageviewer_close" id="imageViewerClose" onclick="document.getElementById('imageViewer').style.display='none'">X</div>
+    </div>
+
+    <div valign="top" class="sidebar">
+      <div ><b id="currentDir"></b> </div>
+      <div class="dir_actions">
+        <a class="dir_action" href="#" onclick="Cocos2dxHelper.uploadFiles()"><svg xmlns="http://www.w3.org/2000/svg" class="ionicon" width="20" height="20" viewBox="0 0 512 512"><path d="M416 221.25V416a48 48 0 01-48 48H144a48 48 0 01-48-48V96a48 48 0 0148-48h98.75a32 32 0 0122.62 9.37l141.26 141.26a32 32 0 019.37 22.62z" fill="none" stroke="currentColor" stroke-linejoin="round" stroke-width="32"/><path d="M256 56v120a32 32 0 0032 32h120" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32"/></svg>Add File<a/>
+        <a class="dir_action" href="#" onclick="Cocos2dxHelper.newFolder()"><svg xmlns="http://www.w3.org/2000/svg" class="ionicon" width="20" height="20" viewBox="0 0 512 512"><path d="M440 432H72a40 40 0 01-40-40V120a40 40 0 0140-40h75.89a40 40 0 0122.19 6.72l27.84 18.56a40 40 0 0022.19 6.72H440a40 40 0 0140 40v240a40 40 0 01-40 40zM32 192h448" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32"/></svg>New Folder<a/>
+      </div>
+      <hr/>
+      <div>
+        <table id="fileList"></table>
+      </div>
+    </div>
+
+    <div class="emscripten_border">
+      <div class="emscripten_status">
+        <div id="status">Downloading...</div>
+        <div>
+        <progress value="0" max="100" id="progress" hidden=1></progress>  
+      </div>
+      </div>
+      <canvas class="emscripten" id="canvas"  oncontextmenu="event.preventDefault()" tabindex=-1></canvas>
+    </div>
+    <div class="emscripten">
+      <input type="checkbox" id="resize">Resize canvas
+      <input type="checkbox" id="pointerLock" checked>Lock/hide mouse pointer
+      &nbsp;&nbsp;&nbsp;
+      <input type="button" value="Fullscreen" onclick="Module.requestFullscreen(document.getElementById('pointerLock').checked, 
+                                                                                document.getElementById('resize').checked)">
+      |
+      <input type="button" value="Pause" onclick="Module.ccall('cocos_ccdirector_pause')">
+      <input type="button" value="Resume" onclick="Module.ccall('cocos_ccdirector_resume')">
+      <input type="button" value="Step" onclick="Module.ccall('cocos_ccdirector_step')">
+    </div>
+    
+    <div class="emscripten">
+      <textarea class="emscripten" id="output" rows="4"></textarea>
+    </div>
+
+    <script type='text/javascript'>
+      var statusElement = document.getElementById('status');
+      var progressElement = document.getElementById('progress');
+
+      var Module = {
+        preRun: [],
+        postRun: [],
+        print: (function() {
+          var element = document.getElementById('output');
+          if (element) element.value = ''; // clear browser cache
+          return function(text) {
+            if (arguments.length > 1) text = Array.prototype.slice.call(arguments).join(' ');
+            // These replacements are necessary if you render to raw HTML
+            //text = text.replace(/&/g, "&amp;");
+            //text = text.replace(/</g, "&lt;");
+            //text = text.replace(/>/g, "&gt;");
+            //text = text.replace('\n', '<br>', 'g');
+            console.log(text);
+            if (element) {
+              element.value += text + "\n";
+              element.scrollTop = element.scrollHeight; // focus on bottom
+            }
+          };
+        })(),
+        printErr: function(text) {
+          if (arguments.length > 1) text = Array.prototype.slice.call(arguments).join(' ');
+          console.error(text);
+        },
+        canvas: (function() {
+          var canvas = document.getElementById('canvas');
+
+          // As a default initial behavior, pop up an alert when webgl context is lost. To make your
+          // application robust, you may want to override this behavior before shipping!
+          // See http://www.khronos.org/registry/webgl/specs/latest/1.0/#5.15.2
+          canvas.addEventListener("webglcontextlost", function(e) { alert('WebGL context lost. You will need to reload the page.'); e.preventDefault(); }, false);
+
+          return canvas;
+        })(),
+        setStatus: function(text) {
+          if (!Module.setStatus.last) Module.setStatus.last = { time: Date.now(), text: '' };
+          if (text === Module.setStatus.last.text) return;
+          var m = text.match(/([^(]+)\((\d+(\.\d+)?)\/(\d+)\)/);
+          var now = Date.now();
+          if (m && now - Module.setStatus.last.time < 30) return; // if this is a progress update, skip it if too soon
+          Module.setStatus.last.time = now;
+          Module.setStatus.last.text = text;
+          if (m) {
+            text = m[1];
+            progressElement.value = parseInt(m[2])*100;
+            progressElement.max = parseInt(m[4])*100;
+            progressElement.hidden = false;
+          } else {
+            progressElement.value = null;
+            progressElement.max = null;
+            progressElement.hidden = true;
+          }
+          statusElement.innerHTML = text;
+        },
+        totalDependencies: 0,
+        monitorRunDependencies: function(left) {
+          this.totalDependencies = Math.max(this.totalDependencies, left);
+          Module.setStatus(left ? 'Preparing... (' + (this.totalDependencies-left) + '/' + this.totalDependencies + ')' : 'All downloads complete.');
+        }
+      };
+      Module.setStatus('Downloading...');
+      window.onerror = function() {
+        Module.setStatus('Exception thrown, see JavaScript console');
+        Module.setStatus = function(text) {
+          if (text) Module.printErr('[post-exception status] ' + text);
+        };
+      };
+    </script>
+    <script type='text/javascript'>
+      Module.preRun.push(function() {
+        addRunDependency('sync_writable_path')
+        FS.mkdir('/cocos2dxWritablePath')
+        FS.mount(IDBFS, {}, '/cocos2dxWritablePath')
+        FS.syncfs(true, function (err) {
+          if (err) {
+            throw err
+          }
+          removeRunDependency('sync_writable_path')
+
+          if(!FS.analyzePath('/cocos2dxWritablePath/main.lua').exists)
+          {
+            FS.writeFile('/cocos2dxWritablePath/main.lua',
+              '-- You need to refresh to see the result after you made any change to the files\n' + 
+              'cc.Label:createWithSystemFont("Hello World", "Arial", 40)\n' + 
+              '  :move(display.cx, display.cy)\n' +
+              '  :addTo(display.getRunningScene())\n');
+          }
+
+          Cocos2dxHelper.refreshFileList('/cocos2dxWritablePath');
+        })
+      })
+    </script>
+    <script type='text/javascript'>
+      window.Cocos2dxHelper = {
+        refreshFileList: function(dir) {
+          Cocos2dxHelper.currentDir = dir || Cocos2dxHelper.currentDir;
+          
+          var dirRoot = document.getElementById('currentDir')
+          while(dirRoot.lastChild)
+            dirRoot.removeChild(dirRoot.lastChild)
+
+          var dirs = Cocos2dxHelper.currentDir.split("/")
+          for(var i = 1; i < dirs.length; i++)
+          {
+            var a = document.createElement('a');
+            a.href = "#"
+            a.setAttribute("class", "dirname") 
+            a.innerText = dirs[i]
+            const fullpathForCurrentNode = dirs.slice(0, i + 1).join("/");
+            a.onclick = function() {
+              Cocos2dxHelper.refreshFileList(fullpathForCurrentNode);
+            }
+            dirRoot.appendChild(a);
+
+            dirRoot.appendChild(document.createTextNode(" / "))
+          }
+
+          var fileList = document.getElementById('fileList')
+          while(fileList.lastChild)
+            fileList.removeChild(fileList.lastChild)
+          
+          var node = document.createElement('tr');
+          node.innerHTML = `<th class="filename">Files</th><th class="actions">Actions</th>`
+          fileList.appendChild(node);
+
+          var files = FS.readdir(Cocos2dxHelper.currentDir)
+          for(var i = 2; i < files.length; i++) // skip . and ..
+          {
+            var filename = files[i];
+            var fullFilename = Cocos2dxHelper.currentDir + "/" + filename;
+            var mode = FS.stat(fullFilename).mode;
+            var tr = document.createElement('tr');
+            tr.innerHTML = `<td class="filename"><a class="filename" href="#" onclick="Cocos2dxHelper.openFile('${fullFilename}')">${filename + (FS.isDir(mode)?"/":"")}</a></td><td class="actions">` + 
+              `<a class="file_action" href="#" onclick="Cocos2dxHelper.deleteFile('${fullFilename}')"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" class="ionicon" viewBox="0 0 512 512"><path d="M112 112l20 320c.95 18.49 14.4 32 32 32h184c17.67 0 30.87-13.51 32-32l20-320" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32"/><path stroke="currentColor" stroke-linecap="round" stroke-miterlimit="10" stroke-width="32" d="M80 112h352"/><path d="M192 112V72h0a23.93 23.93 0 0124-24h80a23.93 23.93 0 0124 24h0v40M256 176v224M184 176l8 224M328 176l-8 224" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32"/></svg></a>` + 
+              `<a class="file_action" href="#" onclick="Cocos2dxHelper.downloadFile('${fullFilename}')"><svg xmlns="http://www.w3.org/2000/svg" class="ionicon" width="20" height="20" viewBox="0 0 512 512"><path d="M336 176h40a40 40 0 0140 40v208a40 40 0 01-40 40H136a40 40 0 01-40-40V216a40 40 0 0140-40h40" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32"/><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32" d="M176 272l80 80 80-80M256 48v288"/></svg></a>` + 
+              "</td>"
+            fileList.appendChild(tr);
+          }
+        },
+        newFolder: function() {
+          var dirname = prompt("Please enter your folder name", "New Folder")
+          FS.mkdir(Cocos2dxHelper.currentDir + "/" + dirname)
+          FS.syncfs(function(err) {
+            Cocos2dxHelper.refreshFileList(Cocos2dxHelper.currentDir);
+          });
+        },
+        uploadFiles: function() {
+          var input = document.createElement("input")
+          input.setAttribute("type", "file")
+          input.setAttribute("multiple", "true")
+          input.addEventListener("change", function()
+          {
+            var files = input.files
+            var promises = Array.from(files, function(file) {return file.arrayBuffer()})
+            Promise.all(promises).then(function(buffers) {
+              for (var i = 0; i < files.length; i++) {
+                FS.writeFile(Cocos2dxHelper.currentDir + "/" + files[i].name, new Uint8Array(buffers[i]))
+              }
+
+              FS.syncfs(function(err) {
+                Cocos2dxHelper.refreshFileList(Cocos2dxHelper.currentDir);
+              });
+            })
+          })
+          input.click()
+        },
+        downloadFile: function(path) {
+          var mode = FS.stat(path).mode;
+          if (FS.isDir(mode))
+          {
+            alert("Downloading folder is not supported yet!");
+          }
+          else
+          {
+            var uint8 = FS.readFile(path)
+            var blob = new Blob([uint8.buffer])
+
+            var link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = path.substr(path.lastIndexOf('/') + 1);
+            link.click();
+          }
+        },
+        deleteFile: function(path) {
+          var ok = confirm(`Are you sure you want permanently delete ${path}?`);
+          if (ok)
+          {
+            var doDeleteFile = function(fullFilename)
+            {
+              var mode = FS.stat(fullFilename).mode;
+              if (FS.isDir(mode))
+              {
+                var files = FS.readdir(fullFilename);
+                for(var i = 2; i < files.length; i++)
+                {
+                  doDeleteFile(fullFilename + "/" + files[i]);
+                }
+
+                FS.rmdir(fullFilename);
+              }
+              else
+              {
+                FS.unlink(fullFilename);
+              }
+            };
+
+            doDeleteFile(path);
+            FS.syncfs(function(err) {
+              Cocos2dxHelper.refreshFileList(Cocos2dxHelper.currentDir);
+            });
+          }
+        },
+        openFile: function(path) {
+          var mode = FS.stat(path).mode;
+          if (FS.isDir(mode))
+          {
+            Cocos2dxHelper.currentDir = path;
+            Cocos2dxHelper.refreshFileList();
+            return;
+          }
+
+          const imageViewer = document.getElementById("imageViewer");
+          imageViewer.style.display = "none";
+
+          Cocos2dxHelper.closeEditor();
+          
+          const ext = path.substr(path.lastIndexOf(".") + 1);
+          const imageMimeTypes = {
+            gif: "gif",
+            jpg: "jpeg",
+            jpeg: "jpeg",
+            png: "png",
+            webp: "webp",
+            tiff: "tiff",
+            bmp: "bmp"
+          };
+
+          if (imageMimeTypes[ext])
+          {
+            imageViewer.style.display = "flow";
+
+            while(imageViewer.childElementCount > 1)
+              imageViewer.removeChild(imageViewer.lastChild)
+
+            var img = document.createElement("img");
+            const binary = FS.readFile(path);
+
+            var str = '';
+            const chunk = 8 * 1024;
+            for (var i = 0; i < binary.length / chunk; i++) {
+              str += String.fromCharCode.apply(null, binary.slice(i * chunk, (i + 1) * chunk));
+            }
+            str += String.fromCharCode.apply(null, binary.slice(i * chunk));
+
+            img.setAttribute("class", "imageviewer")
+            img.src = `data:image/${imageMimeTypes[ext]};base64,${btoa(str)}`;
+            imageViewer.appendChild(img)
+            return;
+          }
+
+          const editorElement = document.getElementById("editor");
+          editorElement.style.display = "flow";
+          
+          const editorHeader = document.getElementById("editorPath");
+          editorHeader.innerText = path;
+
+          const editorContent = document.getElementById("editorPane");
+          const source = FS.readFile(path, { encoding: 'utf8' });
+          const lang = {
+            lua: "lua",
+            js: "javascript",
+            cpp: "cpp",
+            h: "cpp",
+            hpp: "cpp",
+            c: "c",
+            vert: "glsl",
+            frag: "glsl"
+          }[path.substr(path.lastIndexOf(".") + 1)];
+          window.require.config( { paths: { 'vs': 'https://cdn.bootcdn.net/ajax/libs/monaco-editor/0.9.0/min/vs' } } );
+          require( [ "vs/editor/editor.main" ], function() {
+            var editorObj = Cocos2dxHelper.editor;
+            editorObj.path = path;
+            editorObj.instance = window.monaco.editor.create(editorContent, {
+              value: source,
+              language: lang || "plaintext",
+              theme: "vs-dark",
+              automaticLayout: true
+            });
+
+            editorObj.instance.getModel().onDidChangeContent(function() {
+              if (editorObj.timeout)
+                clearTimeout(editorObj.timeout);
+              
+              editorObj.timeout = setTimeout(function() {
+                FS.writeFile(editorObj.path, editorObj.instance.getValue());
+                FS.syncfs(function(err) {
+                  if (err) throw err;
+                });
+              }, 1000);
+            });
+          });
+        },
+        closeEditor: function()
+        {
+          var editorObj = Cocos2dxHelper.editor;
+          if (editorObj.instance)
+          {
+            FS.writeFile(editorObj.path, editorObj.instance.getValue());
+            FS.syncfs(function(err) {
+              if (err) throw err;
+            });
+ 
+            editorObj.instance.dispose();
+            if (editorObj.timeout)
+              clearTimeout(editorObj.timeout);
+          }
+
+          Cocos2dxHelper.editor = {}
+          document.getElementById("editor").style.display = "none";
+        },
+        editor: {}
+      }
+    </script>
+    <script type="text/javascript" src="https://cdn.bootcdn.net/ajax/libs/monaco-editor/0.9.0/min/vs/loader.js"></script>
+    {{{ SCRIPT }}}
+  </body>
+</html>

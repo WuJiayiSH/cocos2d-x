@@ -1,4 +1,5 @@
-Check out some examples: https://wujiayish.github.io/cocos2d-x-examples/
+Lua playground: https://wujiayish.github.io/cocos2d-x-examples/lua-playground.html
+Examples: https://wujiayish.github.io/cocos2d-x-examples/
 
 In order to build cocos2d-x cpp & lua project into HTML5/wasm, make sure you have installed emsdk(https://emscripten.org/docs/getting_started/downloads.html)
 
