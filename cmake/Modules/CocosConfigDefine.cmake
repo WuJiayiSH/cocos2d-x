@@ -75,6 +75,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
     else()
         message(FATAL_ERROR "please using Windows MSVC compile cocos2d-x project, support other compile tools not yet")
     endif()
+
+    # Force MSVC to compile with utf-8 so it doesn't emit C4819
+    add_compile_options("$<$<C_COMPILER_ID:MSVC>:/utf-8>")
+    add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/utf-8>")
 endif()
 
  # Set macro definitions for special platforms
