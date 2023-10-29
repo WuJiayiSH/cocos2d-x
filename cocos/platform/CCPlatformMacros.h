@@ -285,6 +285,33 @@ private: varType varName; public: virtual inline varType get##funName() const { 
  */
 #define CC_DEPRECATED(...) CC_DEPRECATED_ATTRIBUTE
 
+/** @def CC_DISABLE_WARN_DEPRECATED_BEGIN
+ * Disable deprecated warn until next CC_DISABLE_WARN_DEPRECATED_END
+ */
+#if defined(__GNUC__) && ((__GNUC__ >= 4) || ((__GNUC__ == 3) && (__GNUC_MINOR__ >= 1)))
+	#define CC_DISABLE_WARN_DEPRECATED_BEGIN \
+	_Pragma("GCC diagnostic push") \
+	_Pragma("GCC diagnostic ignored \"-Wdeprecated-declarations\"")
+#elif _MSC_VER >= 1400
+	#define CC_DISABLE_WARN_DEPRECATED_BEGIN \
+	__pragma(warning (push)) \
+	__pragma(warning (disable: 4996))
+#else
+	#define CC_DISABLE_WARN_DEPRECATED_BEGIN
+#endif
+
+/** @def CC_DISABLE_WARN_DEPRECATED_END
+ */
+#if defined(__GNUC__) && ((__GNUC__ >= 4) || ((__GNUC__ == 3) && (__GNUC_MINOR__ >= 1)))
+	#define CC_DISABLE_WARN_DEPRECATED_END \
+	_Pragma("GCC diagnostic pop")
+#elif _MSC_VER >= 1400
+	#define CC_DISABLE_WARN_DEPRECATED_END \
+	__pragma(warning (pop))
+#else
+	#define CC_DISABLE_WARN_DEPRECATED_END
+#endif
+
 /** @def CC_ALWAYS_INLINE
  */
 #if defined(__has_attribute)
