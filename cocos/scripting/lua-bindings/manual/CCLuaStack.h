@@ -251,8 +251,8 @@ public:
      * @param numArgs the number of variables.
      * @return 0 if it happen the error or it hasn't return value, otherwise it return the value by calling the lua function.
      */
-    virtual int executeFunction(int numArgs);
-    
+    virtual int executeFunction(int numArgs, int numResults = 1, const std::function<void(lua_State*,int)>& func = nullptr);
+
     /**
      * Execute the lua function corresponding to the nHandler by the numArgs variables passed.
      *

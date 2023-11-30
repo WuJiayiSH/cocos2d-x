@@ -417,8 +417,10 @@ bool LuaStack::pushFunctionByHandler(int nHandler)
     return true;
 }
 
-int LuaStack::executeFunction(int numArgs)
+int LuaStack::executeFunction(int numArgs, int numResults, const std::function<void(lua_State*,int)>& func)
 {
+    CCAssert(numResults == 1 || func != nullptr, "numResults must be 1 when func is empty");
+
     int functionIndex = -(numArgs + 1);
     if (!lua_isfunction(_state, functionIndex))
     {
@@ -441,7 +443,7 @@ int LuaStack::executeFunction(int numArgs)
 
     int error = 0;
     ++_callFromLua;
-    error = lua_pcall(_state, numArgs, 1, traceback);                  /* L: ... [G] ret */
+    error = lua_pcall(_state, numArgs, numResults, traceback); /* L: ... [G] ret */
     --_callFromLua;
     if (error)
     {
@@ -458,17 +460,28 @@ int LuaStack::executeFunction(int numArgs)
     }
 
     // get return value
-    int ret = 0;
-    if (lua_isnumber(_state, -1))
+    int ret;
+    if (func != nullptr)
     {
-        ret = (int)lua_tointeger(_state, -1);
+        ret = 1;
+        if (numResults > 0)
+            func(_state, numResults);
     }
-    else if (lua_isboolean(_state, -1))
+    else
     {
-        ret = (int)lua_toboolean(_state, -1);
+        ret = 0;
+
+        if (lua_isnumber(_state, -1))
+        {
+            ret = (int)lua_tointeger(_state, -1);
+        }
+        else if (lua_isboolean(_state, -1))
+        {
+            ret = (int)lua_toboolean(_state, -1);
+        }
+        // remove return value from stack
+        lua_pop(_state, 1);                                                /* L: ... [G] */
     }
-    // remove return value from stack
-    lua_pop(_state, 1);                                                /* L: ... [G] */
 
     if (traceback)
     {
