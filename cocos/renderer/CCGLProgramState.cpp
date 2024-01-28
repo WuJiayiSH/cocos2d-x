@@ -409,7 +409,7 @@ GLProgramState* GLProgramState::getOrCreateWithGLProgram(GLProgram *glprogram)
     return ret;
 }
 
-GLProgramState* GLProgramState::getOrCreateWithShaders(const std::string& vertexShader, const std::string& fragShader, const std::string& compileTimeDefines)
+GLProgramState* GLProgramState::createWithShaders(const std::string& vertexShader, const std::string& fragShader, const std::string& compileTimeDefines)
 {
     auto glprogramcache = GLProgramCache::getInstance();
     const std::string key = vertexShader + "+" + fragShader + "+" + compileTimeDefines;
@@ -419,7 +419,7 @@ GLProgramState* GLProgramState::getOrCreateWithShaders(const std::string& vertex
         glprogram = GLProgram::createWithFilenames(vertexShader, fragShader, compileTimeDefines);
         glprogramcache->addGLProgram(glprogram, key);
     }
-
+	
     return create(glprogram);
 }
 
