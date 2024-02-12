@@ -57,28 +57,12 @@ Camera* Camera::create()
 
 Camera* Camera::createPerspective(float fieldOfView, float aspectRatio, float nearPlane, float farPlane)
 {
-    auto ret = new (std::nothrow) Camera();
-    if (ret)
-    {
-        ret->initPerspective(fieldOfView, aspectRatio, nearPlane, farPlane);
-        ret->autorelease();
-        return ret;
-    }
-    CC_SAFE_DELETE(ret);
-    return nullptr;
+    return utils::createHelper(&Camera::initPerspective, fieldOfView, aspectRatio, nearPlane, farPlane);
 }
 
 Camera* Camera::createOrthographic(float zoomX, float zoomY, float nearPlane, float farPlane)
 {
-    auto ret = new (std::nothrow) Camera();
-    if (ret)
-    {
-        ret->initOrthographic(zoomX, zoomY, nearPlane, farPlane);
-        ret->autorelease();
-        return ret;
-    }
-    CC_SAFE_DELETE(ret);
-    return nullptr;
+    return utils::createHelper(&Camera::initOrthographic, zoomX, zoomY, nearPlane, farPlane);
 }
 
 Camera* Camera::getDefaultCamera()
