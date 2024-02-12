@@ -83,11 +83,7 @@ BaseLight::~BaseLight()
 ////////////////////////////////////////////////////////////////////
 DirectionLight* DirectionLight::create(const Vec3 &direction, const Color3B &color)
 {
-    auto light = new (std::nothrow) DirectionLight();
-    light->setRotationFromDirection(direction);
-    light->setColor(color);
-    light->autorelease();
-    return light;
+    return utils::createHelper(&DirectionLight::init, direction, color);
 }
 
 void DirectionLight::setDirection(const Vec3 &dir)
@@ -113,15 +109,17 @@ DirectionLight::~DirectionLight()
     
 }
 
+bool DirectionLight::init(const Vec3 &direction, const Color3B &color)
+{
+    setRotationFromDirection(direction);
+    setColor(color);
+	return true;
+}
+
 //////////////////////////////////////////////////////////////////
 PointLight* PointLight::create(const Vec3 &position, const Color3B &color, float range)
 {
-    auto light = new (std::nothrow) PointLight();
-    light->setPosition3D(position);
-    light->setColor(color);
-    light->_range = range;
-    light->autorelease();
-    return light;
+	return utils::createHelper(&PointLight::init, position, color, range);
 }
 
 PointLight::PointLight()
@@ -133,18 +131,18 @@ PointLight::~PointLight()
     
 }
 
+bool PointLight::init(const Vec3 &position, const Color3B &color, float range)
+{
+    setPosition3D(position);
+    setColor(color);
+    _range = range;
+	return true;
+}
+
 //////////////////////////////////////////////////////////////
 SpotLight* SpotLight::create(const Vec3 &direction, const Vec3 &position, const Color3B &color, float innerAngle, float outerAngle, float range)
 {
-    auto light = new (std::nothrow) SpotLight();
-    light->setRotationFromDirection(direction);
-    light->setPosition3D(position);
-    light->setColor(color);
-    light->setInnerAngle(innerAngle);
-    light->setOuterAngle(outerAngle);
-    light->_range = range;
-    light->autorelease();
-    return light;
+	return utils::createHelper(&SpotLight::init, direction, position, color, innerAngle, outerAngle, range);
 }
 
 void SpotLight::setDirection(const Vec3 &dir)
@@ -186,14 +184,22 @@ SpotLight::~SpotLight()
 
 }
 
+bool SpotLight::init(const Vec3 &direction, const Vec3 &position, const Color3B &color, float innerAngle, float outerAngle, float range)
+{
+    setRotationFromDirection(direction);
+    setPosition3D(position);
+    setColor(color);
+    setInnerAngle(innerAngle);
+    setOuterAngle(outerAngle);
+    _range = range;
+    return true;
+}
+
 /////////////////////////////////////////////////////////////
 
 AmbientLight* AmbientLight::create( const Color3B &color )
 {
-    auto light = new (std::nothrow) AmbientLight();
-    light->setColor(color);
-    light->autorelease();
-    return light;
+    return utils::createHelper(&AmbientLight::init, color);
 }
 
 AmbientLight::AmbientLight()
@@ -206,4 +212,9 @@ AmbientLight::~AmbientLight()
 
 }
 
+bool AmbientLight::init(const Color3B &color)
+{
+    setColor(color);
+    return true;
+}
 NS_CC_END
