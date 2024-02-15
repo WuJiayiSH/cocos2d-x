@@ -203,6 +203,55 @@ void Scene::render(Renderer* renderer, const Mat4* eyeTransforms, const Mat4* ey
         if (!camera->isVisible())
             continue;
 
+        for (BaseLight* light : getLights())
+        {
+            if (((unsigned short)camera->getCameraFlag() & light->getCameraMask()) == 0)
+                continue;
+
+            if (!light->isEnabled() || !light->getCastShadow())
+                continue;
+
+            Camera* shadowCamera = nullptr;
+            switch(light->getLightType())
+            {
+                case LightType::DIRECTIONAL:
+					shadowCamera = static_cast<DirectionLight*>(light)->getOrCreateShadowCamera();
+					break;
+                case LightType::SPOT:
+                    shadowCamera = static_cast<SpotLight*>(light)->getOrCreateShadowCamera();
+					break;
+                default:
+                    break;
+            }
+            
+            if (shadowCamera)
+            {
+                shadowCamera->setCameraFlag(camera->getCameraFlag());
+                shadowCamera->setNodeToParentTransform(light->getNodeToWorldTransform());
+
+                Camera::_visitingCamera = shadowCamera;
+
+                for (unsigned int i = 0; i < multiViewCount; ++i) {
+                    if (eyeProjections)
+                        shadowCamera->setAdditionalProjection(eyeProjections[i] * shadowCamera->getProjectionMatrix().getInversed());
+                    if (eyeTransforms)
+                        shadowCamera->setAdditionalTransform(eyeTransforms[i].getInversed());
+                    director->pushProjectionMatrix(i);
+                    director->loadProjectionMatrix(shadowCamera->getViewProjectionMatrix(), i);
+                }
+
+                shadowCamera->apply();
+                shadowCamera->clearBackground();
+                visit(renderer, transform, 0);
+
+                renderer->render();
+                shadowCamera->restore();
+
+                for (unsigned int i = 0; i < multiViewCount; ++i)
+                    director->popProjectionMatrix(i);
+            }
+        }
+
         Camera::_visitingCamera = camera;
         if (Camera::_visitingCamera->getCameraFlag() == CameraFlag::DEFAULT)
         {

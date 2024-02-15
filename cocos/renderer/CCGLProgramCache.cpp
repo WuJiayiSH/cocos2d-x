@@ -680,10 +680,14 @@ std::string GLProgramCache::getShaderMacrosForLight() const
 
     snprintf(def, sizeof(def)-1, "\n#define MAX_DIRECTIONAL_LIGHT_NUM %d \n"
             "\n#define MAX_POINT_LIGHT_NUM %d \n"
-            "\n#define MAX_SPOT_LIGHT_NUM %d \n",
+            "\n#define MAX_SPOT_LIGHT_NUM %d \n"
+            "\n#define MAX_DIRECTIONAL_LIGHT_SHADOW_NUM %d \n"
+            "\n#define MAX_SPOT_LIGHT_SHADOW_NUM %d \n",
              conf->getMaxSupportDirLightInShader(),
              conf->getMaxSupportPointLightInShader(),
-             conf->getMaxSupportSpotLightInShader());
+             conf->getMaxSupportSpotLightInShader(),
+             conf->getMaxSupportDirLightShadowInShader(),
+             conf->getMaxSupportSpotLightShadowInShader());
     return std::string(def);
 }
 

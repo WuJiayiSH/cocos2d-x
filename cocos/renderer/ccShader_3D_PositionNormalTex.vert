@@ -46,6 +46,8 @@ varying vec3 v_normal;
 #endif
 #endif
 
+#include <ShadowRecieverVert>
+
 void main(void)
 {
     vec4 ePosition = CC_MVMatrix * a_position;
@@ -106,6 +108,8 @@ void main(void)
         v_normal = CC_NormalMatrix * a_normal;
     #endif
 #endif
+
+    CCTransferShadow(ePosition);
 
     TextureCoordOut = a_texCoord;
     TextureCoordOut.y = 1.0 - TextureCoordOut.y;
@@ -170,6 +174,8 @@ varying vec3 v_spotLightDirection[MAX_SPOT_LIGHT_NUM];
 varying vec3 v_normal;
 #endif
 #endif
+
+#include <ShadowRecieverVert>
 
 void getPositionAndNormal(out vec4 position, out vec3 normal, out vec3 tangent, out vec3 binormal)
 {
@@ -299,6 +305,8 @@ void main()
         v_normal = CC_NormalMatrix * normal;
     #endif
 #endif
+
+    CCTransferShadow(ePosition);
 
     TextureCoordOut = a_texCoord;
     TextureCoordOut.y = 1.0 - TextureCoordOut.y;

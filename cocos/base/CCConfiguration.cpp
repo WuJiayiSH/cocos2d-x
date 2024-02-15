@@ -62,6 +62,8 @@ Configuration::Configuration()
 , _maxDirLightInShader(1)
 , _maxPointLightInShader(1)
 , _maxSpotLightInShader(1)
+, _maxDirLightShadowInShader(0)
+, _maxSpotLightShadowInShader(0)
 , _animate3DQuality(Animate3DQuality::QUALITY_LOW)
 {
     _loadedEvent = new (std::nothrow) EventCustom(CONFIG_FILE_LOADED);
@@ -377,6 +379,16 @@ int Configuration::getMaxSupportSpotLightInShader() const
     return _maxSpotLightInShader;
 }
 
+int Configuration::getMaxSupportDirLightShadowInShader() const
+{
+    return _maxDirLightShadowInShader;
+}
+
+int Configuration::getMaxSupportSpotLightShadowInShader() const
+{
+    return _maxSpotLightShadowInShader;
+}
+
 Animate3DQuality Configuration::getAnimate3DQuality() const
 {
     return _animate3DQuality;
@@ -471,6 +483,18 @@ void Configuration::loadConfigFile(const std::string& filename)
         _maxSpotLightInShader = _valueDict[name].asInt();
     else
         _valueDict[name] = Value(_maxSpotLightInShader);
+
+    name = "cocos2d.x.3d.max_dir_light_shadow_in_shader";
+	if (_valueDict.find(name) != _valueDict.end())
+        _maxDirLightShadowInShader = _valueDict[name].asInt();
+    else
+        _valueDict[name] = Value(_maxDirLightShadowInShader);
+
+    name = "cocos2d.x.3d.max_spot_light_shadow_in_shader";
+	if (_valueDict.find(name) != _valueDict.end())
+        _maxSpotLightShadowInShader = _valueDict[name].asInt();
+    else
+        _valueDict[name] = Value(_maxSpotLightShadowInShader);
     
     name = "cocos2d.x.3d.animate_quality";
     if (_valueDict.find(name) != _valueDict.end())

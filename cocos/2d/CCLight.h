@@ -58,6 +58,14 @@ enum class LightFlag
     LIGHT15 = 1 << 15,
 };
 
+enum class ShadowSize
+{
+    Low_256x256 = 256,
+    Medium_512x512 = 512,
+    High_1024x1024 = 1024,
+    Ultra_2048x2048 = 2048,
+};
+
 /**
 @js NA
 */
@@ -84,7 +92,21 @@ public:
      */
     void setEnabled(bool enabled) { _enabled = enabled; }
     bool isEnabled() const { return _enabled; }
+
+    void setCastShadow(bool castShadow) override;
     
+    /**
+     * light shadow size getter and setter.
+     */
+    void setShadowMapSize(ShadowSize shadowSize) { _shadowMapSize = shadowSize; }
+    ShadowSize getShadowMapSize() const { return _shadowMapSize; }
+
+    /**
+     * light shadow bias getter and setter.
+     */
+    void setShadowBias(float shadowBias) { _shadowBias = shadowBias; }
+    float getShadowBias() const { return _shadowBias; }
+
     //override
     virtual void onEnter() override;
     virtual void onExit() override;
@@ -100,6 +122,8 @@ protected:
     float       _intensity;
     LightFlag   _lightFlag;
     bool        _enabled;
+    ShadowSize  _shadowMapSize;
+    float       _shadowBias;
 };
 
 /**
@@ -107,6 +131,8 @@ protected:
 */
 class CC_DLL DirectionLight : public BaseLight
 {
+    friend class Scene;
+    friend class Mesh;
 public:
     /**
      * Creates a direction light.
@@ -137,12 +163,18 @@ public:
      */
     Vec3 getDirectionInWorld() const;
     
+    void setCastShadow(bool castShadow) override;
+
 CC_CONSTRUCTOR_ACCESS:
     DirectionLight();
     virtual ~DirectionLight();
     
 protected:
     bool init(const Vec3 &direction, const Color3B &color);
+
+private:
+    Camera* getOrCreateShadowCamera();
+    RefPtr<Camera> _shadowCamera;
 };
 
 /**
@@ -183,6 +215,8 @@ protected:
 */
 class CC_DLL SpotLight : public BaseLight
 {
+    friend class Scene;
+    friend class Mesh;
 public:
     /**
      * Creates a spot light.
@@ -222,7 +256,7 @@ public:
      *
      * @param range The range of point or spot light.
      */
-    void setRange(float range) { _range = range; }
+    void setRange(float range);
     
     /**
      * Returns the range of point or spot light.
@@ -260,6 +294,8 @@ public:
     /** get cos outAngle */
     float getCosOuterAngle() const { return _cosOuterAngle; }
     
+    void setCastShadow(bool castShadow) override;
+
 CC_CONSTRUCTOR_ACCESS:
     SpotLight();
     virtual ~SpotLight();
@@ -272,6 +308,11 @@ protected:
     float _cosInnerAngle;
     float _outerAngle;
     float _cosOuterAngle;
+
+private:
+    Camera* getOrCreateShadowCamera();
+    RefPtr<Camera> _shadowCamera;
+    bool _shadowCameraDirty;
 };
 
 /**

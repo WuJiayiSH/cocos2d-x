@@ -1,0 +1,26 @@
+const char* cc3D_ShadowRecieverFrag_chunk = R"(
+
+#if (MAX_DIRECTIONAL_LIGHT_SHADOW_NUM > 0)
+uniform sampler2D u_DirLightSourceShadowMap[MAX_DIRECTIONAL_LIGHT_SHADOW_NUM];
+uniform float u_DirLightSourceShadowBias[MAX_DIRECTIONAL_LIGHT_SHADOW_NUM];
+varying vec4 v_DirLightShadowCoord[MAX_DIRECTIONAL_LIGHT_SHADOW_NUM];
+#endif
+
+#if (MAX_SPOT_LIGHT_SHADOW_NUM > 0)
+uniform sampler2D u_SpotLightSourceShadowMap[MAX_SPOT_LIGHT_SHADOW_NUM];
+uniform float u_SpotLightSourceShadowBias[MAX_SPOT_LIGHT_SHADOW_NUM];
+varying vec4 v_SpotLightShadowCoord[MAX_SPOT_LIGHT_SHADOW_NUM];
+#endif
+
+float CCSampleShadow(sampler2D shadowMap, vec4 shadowCoord, float shadowBias)
+{
+    shadowCoord.xyz = shadowCoord.xyz / shadowCoord.w * 0.5 + 0.5;
+    shadowCoord.z -= shadowBias;
+
+    if (shadowCoord.x < 0.0 || shadowCoord.x > 1.0 || shadowCoord.y < 0.0 || shadowCoord.y > 1.0 || shadowCoord.z > 1.0)
+        return 1.0;
+
+    return step(shadowCoord.z, texture(shadowMap, shadowCoord.xy).r);
+}
+
+)";

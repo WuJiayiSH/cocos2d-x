@@ -454,6 +454,9 @@ public:
     /** calls glUniform4i only if the values are different than the previous call for this same shader program. */
     void setUniformLocationWith4i(GLint location, GLint i1, GLint i2, GLint i3, GLint i4);
 
+    /** calls glUniform1iv only if the values are different than the previous call for this same shader program. */
+    void setUniformLocationWith1iv(GLint location, const GLint* ints, unsigned int numberOfArrays);
+
     /** calls glUniform2iv only if the values are different than the previous call for this same shader program. */
     void setUniformLocationWith2iv(GLint location, GLint* ints, unsigned int numberOfArrays);
 

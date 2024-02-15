@@ -79,7 +79,7 @@ UniformValue::~UniformValue()
     if (_type == Type::CALLBACK_FN)
         delete _value.callback;
 
-    if (_uniform->type == GL_SAMPLER_2D)
+    if (_uniform->type == GL_SAMPLER_2D && _type == Type::VALUE)
     {
         CC_SAFE_RELEASE(_value.tex.texture);
     }
@@ -94,6 +94,20 @@ void UniformValue::apply()
     else if (_type == Type::POINTER)
     {
         switch (_uniform->type) {
+            case GL_SAMPLER_2D:
+                {
+                    static std::vector<GLint> textureUnits;
+                    const GLsizei texvSize = _value.texv.size;
+                    const GLuint textureUnit = _value.texv.textureUnit;
+					textureUnits.resize(texvSize);
+                    for (GLsizei i = 0; i < texvSize; i++)
+                    {
+                        textureUnits[i] = textureUnit + i;
+                        GL::bindTexture2DN(textureUnit + i, _value.texv.pointer[i]);
+                    }
+                    _glprogram->setUniformLocationWith1iv(_uniform->location, &textureUnits[0], texvSize);
+                }
+                break;
             case GL_FLOAT:
                 _glprogram->setUniformLocationWith1fv(_uniform->location, _value.floatv.pointer, _value.floatv.size);
                 break;
@@ -109,6 +123,10 @@ void UniformValue::apply()
             case GL_FLOAT_VEC4:
                 _glprogram->setUniformLocationWith4fv(_uniform->location, _value.v4f.pointer, _value.v4f.size);
                 break;
+			
+			case GL_FLOAT_MAT4:
+				_glprogram->setUniformLocationWithMatrix4fv(_uniform->location, _value.matrixv.pointer, _value.matrixv.size);
+				break;
 
             default:
                 CCASSERT(false, "Unsupported type");
@@ -181,6 +199,14 @@ void UniformValue::setTexture(GLuint textureId, GLuint textureUnit)
     _value.tex.textureUnit = textureUnit;
     _value.tex.texture = nullptr;
     _type = Type::VALUE;
+}
+
+void UniformValue::setTexturev(ssize_t size, const GLuint* pointer, GLuint textureUnit)
+{
+    setDatav((const void*)pointer, size, sizeof(GLuint));
+    _value.texv.size = size;
+    _value.texv.textureUnit = textureUnit;
+	_type = Type::POINTER;
 }
 
 void UniformValue::setTexture(Texture2D* texture, GLuint textureUnit)
@@ -264,6 +290,12 @@ void UniformValue::setMat4(const Mat4& value)
     CCASSERT(_uniform->type == GL_FLOAT_MAT4, "_uniform's type should be equal GL_FLOAT_MAT4.");
 	memcpy(_value.matrixValue, &value, sizeof(_value.matrixValue));
     _type = Type::VALUE;
+}
+
+void UniformValue::setMat4v(ssize_t size, const Mat4* pointer)
+{
+    CCASSERT (_uniform->type == GL_FLOAT_MAT4, "Wrong type: expecting GL_FLOAT_MAT4");
+    setDatav((const void*)pointer, size, sizeof(Mat4));
 }
 
 void UniformValue::setDatav(const void* pointer, size_t n, size_t sizeOfType)
@@ -872,6 +904,22 @@ void GLProgramState::setUniformMat4(GLint uniformLocation, const Mat4& value)
         CCLOG("cocos2d: warning: Uniform at location not found: %i", uniformLocation);
 }
 
+void GLProgramState::setUniformMat4v(const std::string& uniformName, ssize_t size, const Mat4* pointer)
+{
+    if (UniformValue* v = getUniformValue(uniformName))
+        v->setMat4v(size, pointer);
+    else
+        CCLOG("cocos2d: warning: Uniform not found: %s", uniformName.c_str());
+}
+
+void GLProgramState::setUniformMat4v(GLint uniformLocation, ssize_t size, const Mat4* pointer)
+{
+    if (UniformValue* v = getUniformValue(uniformLocation))
+        v->setMat4v(size, pointer);
+    else
+        CCLOG("cocos2d: warning: Uniform at location not found: %i", uniformLocation);
+}
+
 // Textures
 
 void GLProgramState::setUniformTexture(const std::string& uniformName, Texture2D *texture)
@@ -880,9 +928,10 @@ void GLProgramState::setUniformTexture(const std::string& uniformName, Texture2D
     auto v = getUniformValue(uniformName);
     if (v)
     {
-        if (_boundTextureUnits.find(uniformName) != _boundTextureUnits.end())
+        std::unordered_map<std::string, int>::iterator it = _boundTextureUnits.find(uniformName);
+        if (it != _boundTextureUnits.end())
         {
-            v->setTexture(texture, _boundTextureUnits[uniformName]);
+            v->setTexture(texture, it->second);
         }
         else
         {
@@ -902,9 +951,10 @@ void GLProgramState::setUniformTexture(GLint uniformLocation, Texture2D *texture
     auto v = getUniformValue(uniformLocation);
     if (v)
     {
-        if (_boundTextureUnits.find(v->_uniform->name) != _boundTextureUnits.end())
+        std::unordered_map<std::string, int>::iterator it = _boundTextureUnits.find(v->_uniform->name);
+        if (it != _boundTextureUnits.end())
         {
-            v->setTexture(texture, _boundTextureUnits[v->_uniform->name]);
+            v->setTexture(texture, it->second);
         }
         else
         {
@@ -923,9 +973,10 @@ void GLProgramState::setUniformTexture(const std::string& uniformName, GLuint te
     auto v = getUniformValue(uniformName);
     if (v)
     {
-        if (_boundTextureUnits.find(uniformName) != _boundTextureUnits.end())
+        std::unordered_map<std::string, int>::iterator it = _boundTextureUnits.find(uniformName);
+        if (it != _boundTextureUnits.end())
         {
-            v->setTexture(textureId, _boundTextureUnits[uniformName]);
+            v->setTexture(textureId, it->second);
         }
         else
         {
@@ -944,9 +995,10 @@ void GLProgramState::setUniformTexture(GLint uniformLocation, GLuint textureId)
     auto v = getUniformValue(uniformLocation);
     if (v)
     {
-        if (_boundTextureUnits.find(v->_uniform->name) != _boundTextureUnits.end())
+        std::unordered_map<std::string, int>::iterator it = _boundTextureUnits.find(v->_uniform->name);
+        if (it != _boundTextureUnits.end())
         {
-            v->setTexture(textureId, _boundTextureUnits[v->_uniform->name]);
+            v->setTexture(textureId, it->second);
         }
         else
         {
@@ -958,6 +1010,66 @@ void GLProgramState::setUniformTexture(GLint uniformLocation, GLuint textureId)
     {
         CCLOG("cocos2d: warning: Uniform at location not found: %i", uniformLocation);
     }
+}
+
+void GLProgramState::setUniformTexturev(const std::string& uniformName, ssize_t size, const GLuint* pointer)
+{
+    updateUniformsAndAttributes();
+    const std::unordered_map<std::string, GLint>::iterator it = _uniformsByName.find(uniformName);
+    if (it != _uniformsByName.end())
+    {
+        setUniformTexturev(it->second, size, pointer);
+    }
+    else
+    {
+        CCLOG("cocos2d: warning: Uniform not found: %s", uniformName.c_str());
+    }
+}
+
+void GLProgramState::setUniformTexturev(GLint uniformLocation, ssize_t size, const GLuint* pointer)
+{
+    UniformValue* v = getUniformValue(uniformLocation);
+    if (!v)
+    {
+        CCLOG("cocos2d: warning: Uniform at location not found: %i", uniformLocation);
+        return;
+    }
+    
+    const std::string& uniformName = v->_uniform->name;
+    std::unordered_map<std::string, int>::iterator it = _boundTextureUnits.find(uniformName);
+    if (it == _boundTextureUnits.end())
+    {
+        v->setTexturev(size, pointer, _textureUnitIndex);
+        _boundTextureUnits[uniformName] = _textureUnitIndex;
+        _textureUnitIndex += size;
+        return;
+    }
+    
+    const GLsizei lastSize = v->_value.texv.size; 
+    if (lastSize == size)
+    {
+        v->setTexturev(size, pointer, it->second);
+        return;
+    }
+    
+    for (const std::pair<std::string, int>& pair : _boundTextureUnits)
+    {
+        if (pair.second > it->second)
+        {
+            if (UniformValue* v = getUniformValue(pair.first))
+            {
+                if (v->_type == UniformValue::Type::VALUE)
+                    v->_value.tex.textureUnit -= lastSize;
+                else if(v->_type == UniformValue::Type::POINTER)
+                    v->_value.texv.textureUnit -= lastSize;
+            }
+        }
+    }
+
+    _textureUnitIndex -= lastSize;
+    v->setTexturev(size, pointer, _textureUnitIndex);
+    it->second = _textureUnitIndex;
+    _textureUnitIndex += size;
 }
 
 // Auto bindings

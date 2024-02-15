@@ -65,6 +65,11 @@ Camera* Camera::createOrthographic(float zoomX, float zoomY, float nearPlane, fl
     return utils::createHelper(&Camera::initOrthographic, zoomX, zoomY, nearPlane, farPlane);
 }
 
+Camera* Camera::createOrthographicOffCenter(float left, float right, float bottom, float top, float nearPlane, float farPlane)
+{
+    return utils::createHelper(&Camera::initOrthographicOffCenter, left, right, bottom, top, nearPlane, farPlane);
+}
+
 Camera* Camera::getDefaultCamera()
 {
     auto scene = Director::getInstance()->getRunningScene();
@@ -225,6 +230,20 @@ bool Camera::initOrthographic(float zoomX, float zoomY, float nearPlane, float f
     _nearPlane = nearPlane;
     _farPlane = farPlane;
     Mat4::createOrthographicOffCenter(0, _zoom[0], 0, _zoom[1], _nearPlane, _farPlane, &_projection);
+    _viewProjectionDirty = true;
+    _frustumDirty = true;
+    _type = Type::ORTHOGRAPHIC;
+    
+    return true;
+}
+
+bool Camera::initOrthographicOffCenter(float left, float right, float bottom, float top, float nearPlane, float farPlane)
+{
+    _zoom[0] = right - left;
+    _zoom[1] = top - bottom;
+    _nearPlane = nearPlane;
+    _farPlane = farPlane;
+    Mat4::createOrthographicOffCenter(left, right, bottom, top, _nearPlane, _farPlane, &_projection);
     _viewProjectionDirty = true;
     _frustumDirty = true;
     _type = Type::ORTHOGRAPHIC;

@@ -65,6 +65,9 @@ std::string s_uniformSamplerName[] =
 
 static const char          *s_dirLightUniformColorName = "u_DirLightSourceColor";
 static const char          *s_dirLightUniformDirName = "u_DirLightSourceDirection";
+static const char          *s_dirLightUniformShadowMatrixName = "u_DirLightSourceShadowMatrix";
+static const char          *s_dirLightUniformShadowMapName = "u_DirLightSourceShadowMap";
+static const char          *s_dirLightUniformShadowBiasName = "u_DirLightSourceShadowBias";
 
 static const char          *s_pointLightUniformColorName = "u_PointLightSourceColor";
 static const char          *s_pointLightUniformPositionName = "u_PointLightSourcePosition";
@@ -76,6 +79,9 @@ static const char          *s_spotLightUniformDirName = "u_SpotLightSourceDirect
 static const char          *s_spotLightUniformInnerAngleCosName = "u_SpotLightSourceInnerAngleCos";
 static const char          *s_spotLightUniformOuterAngleCosName = "u_SpotLightSourceOuterAngleCos";
 static const char          *s_spotLightUniformRangeInverseName = "u_SpotLightSourceRangeInverse";
+static const char          *s_spotLightUniformShadowMatrixName = "u_SpotLightSourceShadowMatrix";
+static const char          *s_spotLightUniformShadowMapName = "u_SpotLightSourceShadowMap";
+static const char          *s_spotLightUniformShadowBiasName = "u_SpotLightSourceShadowBias";
 
 static const char          *s_ambientLightUniformColorName = "u_AmbientLightSourceColor";
 
@@ -86,10 +92,15 @@ void Mesh::resetLightUniformValues()
     int maxDirLight = conf->getMaxSupportDirLightInShader();
     int maxPointLight = conf->getMaxSupportPointLightInShader();
     int maxSpotLight = conf->getMaxSupportSpotLightInShader();
+    int maxDirLightShadow = conf->getMaxSupportDirLightShadowInShader();
+    int maxSpotLightShadow = conf->getMaxSupportSpotLightShadowInShader();
 
     _dirLightUniformColorValues.assign(maxDirLight, Vec3::ZERO);
     _dirLightUniformDirValues.assign(maxDirLight, Vec3::ZERO);
-
+    _dirLightUniformShadowMatrixValues.assign(maxDirLightShadow, Mat4::IDENTITY);
+    _dirLightUniformShadowMapValues.assign(maxDirLightShadow, 0);
+    _dirLightUniformShadowBiasValues.assign(maxDirLightShadow, 0.0f);
+    
     _pointLightUniformColorValues.assign(maxPointLight, Vec3::ZERO);
     _pointLightUniformPositionValues.assign(maxPointLight, Vec3::ZERO);
     _pointLightUniformRangeInverseValues.assign(maxPointLight, 0.0f);
@@ -100,6 +111,9 @@ void Mesh::resetLightUniformValues()
     _spotLightUniformInnerAngleCosValues.assign(maxSpotLight, 1.0f);
     _spotLightUniformOuterAngleCosValues.assign(maxSpotLight, 0.0f);
     _spotLightUniformRangeInverseValues.assign(maxSpotLight, 0.0f);
+    _spotLightUniformShadowMatrixValues.assign(maxSpotLightShadow, Mat4::IDENTITY);
+    _spotLightUniformShadowMapValues.assign(maxSpotLightShadow, 0);
+    _spotLightUniformShadowBiasValues.assign(maxSpotLightShadow, 0.0f);
 }
 
 //Generate a dummy texture when the texture file is missing
@@ -121,6 +135,31 @@ static Texture2D * getDummyTexture()
     return texture;
 }
 
+namespace
+{
+    //Generate a dummy shadow map when shadow-enabled lights' count is less than it is set in the configuration
+    static Texture2D * getOrCreateDummyShadowMap()
+    {
+        static Texture2D* texture = nullptr;
+        do
+        {
+            if (texture)
+                break;
+
+            unsigned char data[] = {255, 255, 255, 255};
+			Image* image = utils::createHelper(&Image::initWithRawData, data, sizeof(data), 1, 1, sizeof(unsigned char), false);
+            if (!image)
+                break;
+
+            texture = utils::createHelper(static_cast<bool (Texture2D::*)(Image*)>(&Texture2D::initWithImage), image);
+            if (!texture)
+                break;
+
+            texture->retain();
+        } while (0);
+        return texture;
+    }
+}
 
 Mesh::Mesh()
 : _skin(nullptr)
@@ -372,7 +411,7 @@ Material* Mesh::getMaterial() const
     return _material;
 }
 
-void Mesh::draw(Renderer* renderer, float globalZOrder, const Mat4& transform, uint32_t flags, unsigned int lightMask, const Vec4& color, bool forceDepthWrite)
+void Mesh::draw(Renderer* renderer, float globalZOrder, const Mat4& transform, uint32_t flags, unsigned int lightMask, const Vec4& color, bool forceDepthWrite, bool recieveShadow)
 {
     if (! isVisible() || !_material)
         return;
@@ -417,7 +456,7 @@ void Mesh::draw(Renderer* renderer, float globalZOrder, const Mat4& transform, u
             programState->setUniformVec4v("u_matrixPalette", (GLsizei)_skin->getMatrixPaletteSize(), _skin->getMatrixPalette());
 
         if (scene && !scene->getLights().empty())
-            setLightUniforms(pass, scene, color, lightMask);
+            setLightUniforms(pass, scene, color, lightMask, recieveShadow);
     }
 
     renderer->addCommand(&_meshCommand);
@@ -517,7 +556,7 @@ void Mesh::bindMeshCommand()
     }
 }
 
-void Mesh::setLightUniforms(Pass* pass, Scene* scene, const Vec4& color, unsigned int lightmask)
+void Mesh::setLightUniforms(Pass* pass, Scene* scene, const Vec4& color, unsigned int lightmask, bool recieveShadow)
 {
     CCASSERT(pass, "Invalid Pass");
     CCASSERT(scene, "Invalid scene");
@@ -526,6 +565,8 @@ void Mesh::setLightUniforms(Pass* pass, Scene* scene, const Vec4& color, unsigne
     int maxDirLight = conf->getMaxSupportDirLightInShader();
     int maxPointLight = conf->getMaxSupportPointLightInShader();
     int maxSpotLight = conf->getMaxSupportSpotLightInShader();
+    int maxDirLightShadow = conf->getMaxSupportDirLightShadowInShader();
+    int maxSpotLightShadow = conf->getMaxSupportSpotLightShadowInShader();
     auto &lights = scene->getLights();
 
     auto glProgramState = pass->getGLProgramState();
@@ -538,6 +579,8 @@ void Mesh::setLightUniforms(Pass* pass, Scene* scene, const Vec4& color, unsigne
         GLint enabledDirLightNum = 0;
         GLint enabledPointLightNum = 0;
         GLint enabledSpotLightNum = 0;
+        GLint enabledDirLightShadowNum = 0;
+        GLint enabledSpotLightShadowNum = 0;
         Vec3 ambientColor;
         for (const auto& light : lights)
         {
@@ -560,6 +603,26 @@ void Mesh::setLightUniforms(Pass* pass, Scene* scene, const Vec4& color, unsigne
                             ++enabledDirLightNum;
                         }
 
+                        if(enabledDirLightShadowNum < maxDirLightShadow)
+                        {
+                            auto dirLight = static_cast<DirectionLight*>(light);
+                            if (dirLight->getCastShadow() && recieveShadow)
+                            {
+                                if (Camera* camera = dirLight->getOrCreateShadowCamera())
+                                {
+                                    const Mat4& mat = camera->getViewProjectionMatrix();
+                                    _dirLightUniformShadowMatrixValues[enabledDirLightShadowNum].set(mat);
+                                    _dirLightUniformShadowMapValues[enabledDirLightShadowNum] = camera->getFrameBufferObject()->getDepthStencilTarget()->getTexture()->getName();
+                                }
+
+                                _dirLightUniformShadowBiasValues[enabledDirLightShadowNum] = light->getShadowBias();
+                            }
+							else
+							{
+								_dirLightUniformShadowMapValues[enabledDirLightShadowNum] = getOrCreateDummyShadowMap()->getName();
+							}
+                            ++enabledDirLightShadowNum;
+                        }
                     }
                         break;
                     case LightType::POINT:
@@ -592,6 +655,27 @@ void Mesh::setLightUniforms(Pass* pass, Scene* scene, const Vec4& color, unsigne
                             _spotLightUniformOuterAngleCosValues[enabledSpotLightNum] = spotLight->getCosOuterAngle();
                             _spotLightUniformRangeInverseValues[enabledSpotLightNum] = 1.0f / spotLight->getRange();
                             ++enabledSpotLightNum;
+                        }
+
+                        if(enabledSpotLightShadowNum < maxSpotLightShadow)
+                        {
+                            auto spotLight = static_cast<SpotLight*>(light);
+                            if (spotLight->getCastShadow() && recieveShadow)
+                            {
+                                if (Camera* camera = spotLight->getOrCreateShadowCamera())
+                                {
+                                    const Mat4& mat = camera->getViewProjectionMatrix();
+                                    _spotLightUniformShadowMatrixValues[enabledSpotLightShadowNum].set(mat);
+                                    _spotLightUniformShadowMapValues[enabledSpotLightShadowNum] = camera->getFrameBufferObject()->getDepthStencilTarget()->getTexture()->getName();
+                                }
+
+                                _spotLightUniformShadowBiasValues[enabledSpotLightShadowNum] = light->getShadowBias();
+                            }
+							else
+							{
+								_spotLightUniformShadowMapValues[enabledSpotLightShadowNum] = getOrCreateDummyShadowMap()->getName();
+							}
+                            ++enabledSpotLightShadowNum;
                         }
                     }
                         break;
@@ -629,6 +713,20 @@ void Mesh::setLightUniforms(Pass* pass, Scene* scene, const Vec4& color, unsigne
             glProgramState->setUniformFloatv(s_spotLightUniformInnerAngleCosName, _spotLightUniformInnerAngleCosValues.size(), &_spotLightUniformInnerAngleCosValues[0]);
             glProgramState->setUniformFloatv(s_spotLightUniformOuterAngleCosName, _spotLightUniformOuterAngleCosValues.size(), &_spotLightUniformOuterAngleCosValues[0]);
             glProgramState->setUniformFloatv(s_spotLightUniformRangeInverseName, _spotLightUniformRangeInverseValues.size(), &_spotLightUniformRangeInverseValues[0]);
+        }
+
+        if (0 < maxDirLightShadow)
+        {
+            glProgramState->setUniformMat4v(s_dirLightUniformShadowMatrixName, _dirLightUniformShadowMatrixValues.size(), &_dirLightUniformShadowMatrixValues[0]);
+            glProgramState->setUniformTexturev(s_dirLightUniformShadowMapName, _dirLightUniformShadowMapValues.size(), &_dirLightUniformShadowMapValues[0]);
+            glProgramState->setUniformFloatv(s_dirLightUniformShadowBiasName, _dirLightUniformShadowBiasValues.size(), &_dirLightUniformShadowBiasValues[0]);
+        }
+
+        if (0 < maxSpotLightShadow)
+        {
+            glProgramState->setUniformMat4v(s_spotLightUniformShadowMatrixName, _spotLightUniformShadowMatrixValues.size(), &_spotLightUniformShadowMatrixValues[0]);
+            glProgramState->setUniformTexturev(s_spotLightUniformShadowMapName, _spotLightUniformShadowMapValues.size(), &_spotLightUniformShadowMapValues[0]);
+            glProgramState->setUniformFloatv(s_spotLightUniformShadowBiasName, _spotLightUniformShadowBiasValues.size(), &_spotLightUniformShadowBiasValues[0]);
         }
 
         glProgramState->setUniformVec3(s_ambientLightUniformColorName, Vec3(ambientColor.x, ambientColor.y, ambientColor.z));

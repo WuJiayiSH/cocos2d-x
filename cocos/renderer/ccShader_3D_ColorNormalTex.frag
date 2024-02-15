@@ -18,6 +18,8 @@ uniform float u_SpotLightSourceRangeInverse[MAX_SPOT_LIGHT_NUM];
 #endif
 uniform vec3 u_AmbientLightSourceColor;
 
+#include <ShadowRecieverFrag>
+
 #ifdef GL_ES
 varying mediump vec2 TextureCoordOut;
 
@@ -106,7 +108,12 @@ void main(void)
 #else
         vec3 lightDirection = normalize(u_DirLightSourceDirection[i] * 2.0);
 #endif
-        combinedColor.xyz += computeLighting(normal, -lightDirection, u_DirLightSourceColor[i], 1.0);
+        
+        float attenuation = 1.0;
+#if (MAX_DIRECTIONAL_LIGHT_SHADOW_NUM > 0)
+        attenuation *= CCSampleShadow(u_DirLightSourceShadowMap[i], v_DirLightShadowCoord[i], u_DirLightSourceShadowBias[i]);
+#endif
+        combinedColor.xyz += computeLighting(normal, -lightDirection, u_DirLightSourceColor[i], attenuation);
     }
 #endif
 
@@ -141,6 +148,10 @@ void main(void)
         // Apply spot attenuation
         attenuation *= smoothstep(u_SpotLightSourceOuterAngleCos[i], u_SpotLightSourceInnerAngleCos[i], spotCurrentAngleCos);
         attenuation = clamp(attenuation, 0.0, 1.0);
+
+#if (MAX_SPOT_LIGHT_SHADOW_NUM > 0)
+        attenuation *= CCSampleShadow(u_SpotLightSourceShadowMap[i], v_SpotLightShadowCoord[i], u_SpotLightSourceShadowBias[i]);
+#endif
         combinedColor.xyz += computeLighting(normal, vertexToSpotLightDirection, u_SpotLightSourceColor[i], attenuation);
     }
 #endif

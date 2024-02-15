@@ -819,7 +819,8 @@ void Sprite3D::draw(Renderer *renderer, const Mat4 &transform, uint32_t flags)
                    flags,
                    _lightMask,
                    Vec4(color.r, color.g, color.b, color.a),
-                   _forceDepthWrite);
+                   _forceDepthWrite,
+                   _recieveShadow);
 
     }
 }

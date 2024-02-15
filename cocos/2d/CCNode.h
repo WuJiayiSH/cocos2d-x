@@ -1860,6 +1860,33 @@ public:
      */
     virtual void setCameraMask(unsigned short mask, bool applyChildren = true);
 
+    /**
+     * Get whether the node casts shadow.
+     * @return Whether the node casts shadow.
+     */
+    bool getCastShadow() const {return _castShadow;};
+
+    /**
+     * Set whether the node casts shadow. Default is `false`.
+     * Lights marked to cast shadow will render shadow map from it's own point of view.
+     * Camera should only be marked to cast shadow internally. Shadow-casting lights will generate such cameras to render shadow maps.
+     * Drawable nodes, usually 3D sprites, will be rendered into shadow map if they are marked to cast shadow.
+     * @param castShadow Whether the node casts shadow.
+     */
+    virtual void setCastShadow(bool castShadow) {_castShadow = castShadow;};
+
+    /**
+     * Get whether the node receives shadows.
+     * @return Whether the node receives shadows.
+     */
+    bool getRecieveShadow() const {return _recieveShadow;};
+
+    /**
+     * Set whether the node receives shadows. Default is `false`.
+     * @param recieveShadow Whether the node receives shadows.
+     */
+    void setRecieveShadow(bool recieveShadow) {_recieveShadow = recieveShadow;};
+
 CC_CONSTRUCTOR_ACCESS:
     // Nodes should be created using create();
     Node();
@@ -2013,6 +2040,10 @@ protected:
 
     // camera mask, it is visible only when _cameraMask & current camera' camera flag is true
     unsigned short _cameraMask;
+
+    // shadow
+    bool _castShadow;
+    bool _recieveShadow;
     
     std::function<void()> _onEnterCallback;
     std::function<void()> _onExitCallback;

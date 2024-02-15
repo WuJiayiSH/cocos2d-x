@@ -205,6 +205,18 @@ public:
      */
     int getMaxSupportSpotLightInShader() const;
 
+    /** Max support directional light shadow in shader, for Sprite3D.
+     *
+     * @return Maximum supports directional light shadow in shader.
+     */
+    int getMaxSupportDirLightShadowInShader() const;
+    
+    /** Max support spot light shadow in shader, for Sprite3D.
+     *
+     * @return Maximum supports spot light shadow in shader.
+     */
+    int getMaxSupportSpotLightShadowInShader() const;
+
     /** get 3d animate quality*/
     Animate3DQuality getAnimate3DQuality() const;
     
@@ -294,6 +306,8 @@ protected:
     int             _maxDirLightInShader; //max support directional light in shader
     int             _maxPointLightInShader; // max support point light in shader
     int             _maxSpotLightInShader; // max support spot light in shader
+    int             _maxDirLightShadowInShader; //max support directional light shadow in shader
+    int             _maxSpotLightShadowInShader; // max support spot light shadow in shader
     Animate3DQuality  _animate3DQuality; // animate 3d quality
 	
 	ValueMap        _valueDict;

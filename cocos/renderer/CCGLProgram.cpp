@@ -37,40 +37,91 @@ THE SOFTWARE.
 #include "base/ccUTF8.h"
 #include "renderer/ccGLStateCache.h"
 #include "platform/CCFileUtils.h"
+#include <regex>
+
+// built-in chunks
+#include "renderer/ccShader_ShadowRecieverVert.chunk"
+#include "renderer/ccShader_ShadowRecieverFrag.chunk"
 
 // helper functions
-
-static void replaceDefines(const std::string& compileTimeDefines, std::string& out)
+namespace
 {
-    // Replace semicolons with '#define ... \n'
-    if (!compileTimeDefines.empty())
+    static const std::unordered_map<std::string, const char*> s_builtinChunks = {
+        {"ShadowRecieverVert", cc3D_ShadowRecieverVert_chunk},
+        {"ShadowRecieverFrag", cc3D_ShadowRecieverFrag_chunk}
+	};
+
+    static void replaceDefines(const std::string& compileTimeDefines, std::string& out)
     {
-        // append ';' if the last char doesn't have one
-        auto copyDefines = compileTimeDefines;
-        if (copyDefines[copyDefines.length()-1] != ';')
-            copyDefines.append(1, ';');
-
-        std::string currentDefine;
-
-        for (auto itChar: copyDefines)
+        // Replace semicolons with '#define ... \n'
+        if (!compileTimeDefines.empty())
         {
-            if (itChar == ';')
+            // append ';' if the last char doesn't have one
+            auto copyDefines = compileTimeDefines;
+            if (copyDefines[copyDefines.length()-1] != ';')
+                copyDefines.append(1, ';');
+
+            std::string currentDefine;
+
+            for (auto itChar: copyDefines)
             {
-                if (!currentDefine.empty())
+                if (itChar == ';')
                 {
-                    out.append("\n#define " + currentDefine);
-                    currentDefine.clear();
+                    if (!currentDefine.empty())
+                    {
+                        out.append("\n#define " + currentDefine);
+                        currentDefine.clear();
+                    }
+                }
+                else
+                {
+                    currentDefine.append(1, itChar);
                 }
             }
-            else
-            {
-                currentDefine.append(1, itChar);
-            }
+            out += "\n";
         }
-        out += "\n";
     }
-}
 
+    bool getIncludeContent(const std::string filename, std::string& out)
+    {
+        std::unordered_map<std::string, const char*>::const_iterator it = s_builtinChunks.find(filename);
+        if (it != s_builtinChunks.end())
+        {
+            out = it->second;
+            return true;
+        }
+        else if (cocos2d::FileUtils::getInstance()->isFileExist(filename))
+        {
+            out = cocos2d::FileUtils::getInstance()->getStringFromFile(filename);
+            return true;
+        }
+        else
+        {
+            CCLOG("cocos2d: ERROR: Failed to open include file %s", filename.c_str());
+            return false;
+        }
+    }
+
+	bool resolveIncludes(const char* source, std::string& out)
+	{
+        const char* ptr = source;
+		std::cmatch match;
+        static const std::regex regex("^\\s*#include\\s+<([^<>]+)>\\s*$");
+        while (std::regex_search(ptr, match, regex))
+        {
+            out.append(match.prefix());
+
+            std::string content;
+            if (!getIncludeContent(match[1], content) || !resolveIncludes(content.c_str(), out))
+                return false;
+
+            ptr = ptr + match.position() + match.length();
+        }
+
+        out.append(ptr);
+        return true;
+	}
+}
 
 NS_CC_BEGIN
 const char* GLProgram::SHADER_NAME_ETC1AS_POSITION_TEXTURE_COLOR = "#ShaderETC1ASPositionTextureColor";
@@ -482,6 +533,10 @@ bool GLProgram::compileShader(GLuint * shader, GLenum type, const GLchar* source
         return false;
     }
 
+    std::string resolvedSource;
+    if (!resolveIncludes(source, resolvedSource))
+        return false;
+
     std::string headersDef;
     if (compileTimeHeaders.empty()) {
 #if CC_TARGET_PLATFORM == CC_PLATFORM_WINRT
@@ -503,7 +558,7 @@ bool GLProgram::compileShader(GLuint * shader, GLenum type, const GLchar* source
         headersDef.c_str(),
         COCOS2D_SHADER_UNIFORMS,
         convertedDefines.c_str(),
-        source};
+        resolvedSource.c_str()};
 
     *shader = glCreateShader(type);
     glShaderSource(*shader, sizeof(sources)/sizeof(*sources), sources, nullptr);
@@ -775,6 +830,16 @@ void GLProgram::setUniformLocationWith4i(GLint location, GLint i1, GLint i2, GLi
     if (updated)
     {
         glUniform4i( (GLint)location, i1, i2, i3, i4);
+    }
+}
+
+void GLProgram::setUniformLocationWith1iv(GLint location, const GLint* ints, unsigned int numberOfArrays)
+{
+    bool updated = updateUniformLocation(location, ints, sizeof(int) * numberOfArrays);
+
+    if (updated)
+    {
+        glUniform1iv( (GLint)location, (GLsizei)numberOfArrays, ints );
     }
 }
 

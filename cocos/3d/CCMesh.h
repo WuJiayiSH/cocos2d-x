@@ -201,7 +201,7 @@ public:
     /** Returns the Material being used by the Mesh */
     Material* getMaterial() const;
 
-    void draw(Renderer* renderer, float globalZ, const Mat4& transform, uint32_t flags, unsigned int lightMask, const Vec4& color, bool forceDepthWrite);
+    void draw(Renderer* renderer, float globalZ, const Mat4& transform, uint32_t flags, unsigned int lightMask, const Vec4& color, bool forceDepthWrite, bool recieveShadow);
 
     /** 
      * Get the MeshCommand.
@@ -235,7 +235,7 @@ CC_CONSTRUCTOR_ACCESS:
 
 protected:
     void resetLightUniformValues();
-    void setLightUniforms(Pass* pass, Scene* scene, const Vec4& color, unsigned int lightmask);
+    void setLightUniforms(Pass* pass, Scene* scene, const Vec4& color, unsigned int lightmask, bool recieveShadow);
     void bindMeshCommand();
 
     std::map<NTextureData::Usage, Texture2D*> _textures; //textures that submesh is using
@@ -257,7 +257,10 @@ protected:
     ///light parameters
     std::vector<Vec3> _dirLightUniformColorValues;
     std::vector<Vec3> _dirLightUniformDirValues;
-    
+    std::vector<Mat4> _dirLightUniformShadowMatrixValues;
+    std::vector<GLuint> _dirLightUniformShadowMapValues;
+    std::vector<float> _dirLightUniformShadowBiasValues;
+
     std::vector<Vec3> _pointLightUniformColorValues;
     std::vector<Vec3> _pointLightUniformPositionValues;
     std::vector<float> _pointLightUniformRangeInverseValues;
@@ -268,6 +271,9 @@ protected:
     std::vector<float> _spotLightUniformInnerAngleCosValues;
     std::vector<float> _spotLightUniformOuterAngleCosValues;
     std::vector<float> _spotLightUniformRangeInverseValues;
+    std::vector<Mat4> _spotLightUniformShadowMatrixValues;
+    std::vector<GLuint> _spotLightUniformShadowMapValues;
+    std::vector<float> _spotLightUniformShadowBiasValues;
 
     std::string _texFile;
 };

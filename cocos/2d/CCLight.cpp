@@ -28,6 +28,29 @@
 
 NS_CC_BEGIN
 
+namespace
+{
+    experimental::FrameBuffer* createFrameBufferObject(unsigned int width, unsigned int height)
+    {
+        using namespace experimental;
+        if (RenderTarget* depthStencilTarget = RenderTarget::create(width, height, Texture2D::PixelFormat::D24S8))
+        {
+            if (FrameBuffer* fbo = FrameBuffer::create(1, width, height))
+            {
+                fbo->attachDepthStencilTarget(depthStencilTarget);
+                return fbo;
+            }
+        }
+
+		return nullptr;
+    }
+
+    bool compareCastShadow(BaseLight* a, BaseLight* b)
+    {
+        return a->getCastShadow() > b->getCastShadow();
+    }
+}
+
 void BaseLight::setIntensity(float intensity)
 {
     CC_ASSERT(intensity >= 0);
@@ -43,6 +66,8 @@ void BaseLight::onEnter()
         auto iter = std::find(lights.begin(), lights.end(), this);
         if (iter == lights.end())
             lights.push_back(this);
+
+        std::sort(lights.begin(), lights.end(), compareCastShadow);
     }
     Node::onEnter();
 }
@@ -59,6 +84,21 @@ void BaseLight::onExit()
     Node::onExit();
 }
 
+void BaseLight::setCastShadow(bool castShadow)
+{
+    if (getCastShadow() != castShadow)
+    {
+        Node::setCastShadow(castShadow);
+
+        Scene* scene = getScene();
+        if (scene)
+        {
+            std::vector<BaseLight *> &lights = scene->_lights;
+            std::sort(lights.begin(), lights.end(), compareCastShadow);
+        }
+    }
+}
+
 void BaseLight::setRotationFromDirection( const Vec3 &direction )
 {
     float projLen = std::sqrt(direction.x * direction.x + direction.z * direction.z);
@@ -71,6 +111,8 @@ BaseLight::BaseLight()
 : _intensity(1.0f)
 , _lightFlag(LightFlag::LIGHT0)
 , _enabled(true)
+, _shadowMapSize(ShadowSize::High_1024x1024)
+, _shadowBias(0.0f)
 {
     
 }
@@ -114,6 +156,31 @@ bool DirectionLight::init(const Vec3 &direction, const Color3B &color)
     setRotationFromDirection(direction);
     setColor(color);
 	return true;
+}
+
+void DirectionLight::setCastShadow(bool castShadow)
+{
+    BaseLight::setCastShadow(castShadow);
+    if (!castShadow)
+        _shadowCamera = nullptr;
+}
+
+Camera* DirectionLight::getOrCreateShadowCamera()
+{
+    if (!_shadowCamera)
+    {
+        const unsigned int size = static_cast<unsigned int>(_shadowMapSize);
+        if (experimental::FrameBuffer* fbo = createFrameBufferObject(size, size))
+        {
+            if (_shadowCamera = Camera::createOrthographicOffCenter(-500.0f, 500.0f, -500.0f, 500.0f, 0.0f, 50000.0f))
+            {
+                _shadowCamera->setFrameBufferObject(fbo);
+                _shadowCamera->setCastShadow(true);
+            }
+        }
+    }
+
+    return _shadowCamera;
 }
 
 //////////////////////////////////////////////////////////////////
@@ -162,6 +229,12 @@ Vec3 SpotLight::getDirectionInWorld() const
     return Vec3(-mat.m[8], -mat.m[9], -mat.m[10]);
 }
 
+void SpotLight::setRange(float range)
+{
+    _range = range;
+    _shadowCameraDirty = true;
+}
+
 void SpotLight::setInnerAngle(float angle)
 {
     _innerAngle = angle;
@@ -172,6 +245,7 @@ void SpotLight::setOuterAngle(float angle)
 {
     _outerAngle = angle;
     _cosOuterAngle = cosf(angle);
+    _shadowCameraDirty = true;
 }
 
 SpotLight::SpotLight()
@@ -195,6 +269,32 @@ bool SpotLight::init(const Vec3 &direction, const Vec3 &position, const Color3B 
     return true;
 }
 
+void SpotLight::setCastShadow(bool castShadow)
+{
+    BaseLight::setCastShadow(castShadow);
+    if (!castShadow)
+        _shadowCamera = nullptr;
+}
+
+Camera* SpotLight::getOrCreateShadowCamera()
+{
+    if (!_shadowCamera || _shadowCameraDirty)
+    {
+        const unsigned int size = static_cast<unsigned int>(_shadowMapSize);
+        if (RefPtr<experimental::FrameBuffer> fbo = _shadowCamera ? _shadowCamera->getFrameBufferObject() : createFrameBufferObject(size, size))
+        {
+            const float fov = CC_RADIANS_TO_DEGREES(_outerAngle * 2.0f);
+            if (_shadowCamera = Camera::createPerspective(fov, 1.0f, 1.0f, _range))
+            {
+                _shadowCamera->setFrameBufferObject(fbo);
+                _shadowCamera->setCastShadow(true);
+                _shadowCameraDirty = false;
+            }
+        }
+    }
+
+    return _shadowCamera;
+}
 /////////////////////////////////////////////////////////////
 
 AmbientLight* AmbientLight::create( const Color3B &color )

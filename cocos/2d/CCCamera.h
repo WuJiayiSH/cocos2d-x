@@ -97,6 +97,18 @@ public:
     */
     static Camera* createOrthographic(float zoomX, float zoomY, float nearPlane, float farPlane);
 
+    /**
+    * Creates an orthographic camera.
+    *
+    * @param left The minimum x-value of the ortho projection.
+    * @param right The maximum x-value of the ortho projection.
+    * @param bottom The minimum y-value of the ortho projection.
+    * @param top The maximum y-value of the ortho projection.
+    * @param nearPlane The near plane distance.
+    * @param farPlane The far plane distance.
+    */
+    static Camera* createOrthographicOffCenter(float left, float right, float bottom, float top, float nearPlane, float farPlane);
+
     /** create default camera, the camera type depends on Director::getProjection, the depth of the default camera is 0 */
     static Camera* create();
 
@@ -258,6 +270,12 @@ public:
      Set FBO, which will attach several render target for the rendered result.
      */
     void setFrameBufferObject(experimental::FrameBuffer* fbo);
+
+    /**
+     Get FBO
+     */
+    experimental::FrameBuffer* getFrameBufferObject() const { return _fbo; }
+
     /**
      Set Viewport for camera.
      */
@@ -302,6 +320,7 @@ CC_CONSTRUCTOR_ACCESS:
     bool initDefault();
     bool initPerspective(float fieldOfView, float aspectRatio, float nearPlane, float farPlane);
     bool initOrthographic(float zoomX, float zoomY, float nearPlane, float farPlane);
+    bool initOrthographicOffCenter(float left, float right, float bottom, float top, float nearPlane, float farPlane);
     void applyFrameBufferObject();
     void applyViewport();
     void restoreFrameBufferObject();

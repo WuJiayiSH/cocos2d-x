@@ -469,7 +469,9 @@ void FrameBuffer::applyFBO()
     if(_fboBindingDirty && !isDefaultFBO())
     {
         CHECK_GL_ERROR_DEBUG();
-        if(RenderTargetBase::Type::Texture2D == _rt->getType())
+        if (!_rt)
+            glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, 0);
+        else if(RenderTargetBase::Type::Texture2D == _rt->getType())
             glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, _rt->getTexture()->getName(), 0);
         else
             glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, _rt->getBuffer());
@@ -494,7 +496,7 @@ void FrameBuffer::applyFBO()
         }
 #endif
         CHECK_GL_ERROR_DEBUG();
-        CCLOG("FBO is %d _fbo %d color, %d ds", _fbo, RenderTargetBase::Type::Texture2D == _rt->getType() ? _rt->getTexture()->getName() : _rt->getBuffer(), nullptr == _rtDepthStencil ? 0 : _rtDepthStencil->getBuffer());
+        CCLOG("FBO is %d _fbo %d color, %d ds", _fbo, nullptr == _rt ? 0 : (RenderTargetBase::Type::Texture2D == _rt->getType() ? _rt->getTexture()->getName() : _rt->getBuffer()), nullptr == _rtDepthStencil ? 0 : _rtDepthStencil->getBuffer());
         _fboBindingDirty = false;
     }
     if(GL_FRAMEBUFFER_COMPLETE != glCheckFramebufferStatus(GL_FRAMEBUFFER))

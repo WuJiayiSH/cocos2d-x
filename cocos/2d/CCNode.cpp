@@ -118,6 +118,8 @@ Node::Node()
 #if CC_USE_PHYSICS
 , _physicsBody(nullptr)
 #endif
+, _castShadow(false)
+, _recieveShadow(false)
 {
     // set default scheduler and actionManager
     _director = Director::getInstance();
@@ -1241,9 +1243,21 @@ uint32_t Node::processParentFlags(const Mat4& parentTransform, uint32_t parentFl
 
 bool Node::isVisitableByVisitingCamera() const
 {
-    auto camera = Camera::getVisitingCamera();
-    bool visibleByCamera = camera ? ((unsigned short)camera->getCameraFlag() & _cameraMask) != 0 : true;
-    return visibleByCamera;
+    if (const Camera* camera = Camera::getVisitingCamera())
+    {
+        // Shadow-casting camera is only used to render shadow map
+        if (!getCastShadow() && camera->getCastShadow())
+        {
+            return false;
+        }
+
+        if (((unsigned short)camera->getCameraFlag() & _cameraMask) == 0)
+        {
+            return false;
+        }
+    }
+    
+    return true;
 }
 
 void Node::visit(Renderer* renderer, const Mat4 &parentTransform, uint32_t parentFlags)
