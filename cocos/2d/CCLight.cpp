@@ -44,11 +44,6 @@ namespace
 
 		return nullptr;
     }
-
-    bool compareCastShadow(BaseLight* a, BaseLight* b)
-    {
-        return a->getCastShadow() > b->getCastShadow();
-    }
 }
 
 void BaseLight::setIntensity(float intensity)
@@ -67,7 +62,7 @@ void BaseLight::onEnter()
         if (iter == lights.end())
             lights.push_back(this);
 
-        std::sort(lights.begin(), lights.end(), compareCastShadow);
+        scene->setLightOrderDirty();
     }
     Node::onEnter();
 }
@@ -93,8 +88,7 @@ void BaseLight::setCastShadow(bool castShadow)
         Scene* scene = getScene();
         if (scene)
         {
-            std::vector<BaseLight *> &lights = scene->_lights;
-            std::sort(lights.begin(), lights.end(), compareCastShadow);
+            scene->setLightOrderDirty();
         }
     }
 }
@@ -162,7 +156,14 @@ void DirectionLight::setCastShadow(bool castShadow)
 {
     BaseLight::setCastShadow(castShadow);
     if (!castShadow)
-        _shadowCamera = nullptr;
+    {
+        if (Ref* ref = _shadowCamera.get())
+        {
+            ref->retain();
+            ref->autorelease();
+            _shadowCamera.reset();
+        }
+    }
 }
 
 Camera* DirectionLight::getOrCreateShadowCamera()
@@ -273,7 +274,14 @@ void SpotLight::setCastShadow(bool castShadow)
 {
     BaseLight::setCastShadow(castShadow);
     if (!castShadow)
-        _shadowCamera = nullptr;
+    {
+        if (Ref* ref = _shadowCamera.get())
+        {
+            ref->retain();
+            ref->autorelease();
+            _shadowCamera.reset();
+        }
+    }
 }
 
 Camera* SpotLight::getOrCreateShadowCamera()

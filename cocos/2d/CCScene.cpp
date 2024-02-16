@@ -51,6 +51,14 @@ THE SOFTWARE.
 
 NS_CC_BEGIN
 
+namespace
+{
+    static bool lightCompareCastShadow(BaseLight* a, BaseLight* b)
+    {
+        return a->getCastShadow() > b->getCastShadow();
+    }
+}
+
 Scene::Scene()
 : _defaultCamera(Camera::create())
 , _event(Director::getInstance()->getEventDispatcher()->addCustomEventListener(Director::EVENT_PROJECTION_CHANGED, std::bind(&Scene::onProjectionChanged, this, std::placeholders::_1)))
@@ -197,6 +205,12 @@ void Scene::render(Renderer* renderer, const Mat4* eyeTransforms, const Mat4* ey
     auto director = Director::getInstance();
     Camera* defaultCamera = nullptr;
     const auto& transform = getNodeToParentTransform();
+
+    if (_lightOrderDirty)
+    {
+        sort(_lights.begin(), _lights.end(), lightCompareCastShadow);
+        _lightOrderDirty = false;
+    }
 
     for (const auto& camera : getCameras())
     {
