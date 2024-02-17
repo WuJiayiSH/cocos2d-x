@@ -162,8 +162,6 @@ public:
      * Returns direction in world.
      */
     Vec3 getDirectionInWorld() const;
-    
-    void setCastShadow(bool castShadow) override;
 
 CC_CONSTRUCTOR_ACCESS:
     DirectionLight();
@@ -173,7 +171,7 @@ protected:
     bool init(const Vec3 &direction, const Color3B &color);
 
 private:
-    Camera* getOrCreateShadowCamera();
+    void updateShadowCamera();
     RefPtr<Camera> _shadowCamera;
 };
 
@@ -293,8 +291,6 @@ public:
     
     /** get cos outAngle */
     float getCosOuterAngle() const { return _cosOuterAngle; }
-    
-    void setCastShadow(bool castShadow) override;
 
 CC_CONSTRUCTOR_ACCESS:
     SpotLight();
@@ -310,7 +306,7 @@ protected:
     float _cosOuterAngle;
 
 private:
-    Camera* getOrCreateShadowCamera();
+    void updateShadowCamera();
     RefPtr<Camera> _shadowCamera;
     bool _shadowCameraDirty;
 };

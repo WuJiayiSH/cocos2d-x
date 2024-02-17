@@ -206,11 +206,28 @@ void Scene::render(Renderer* renderer, const Mat4* eyeTransforms, const Mat4* ey
     Camera* defaultCamera = nullptr;
     const auto& transform = getNodeToParentTransform();
 
+    // start to update lights for this frame
     if (_lightOrderDirty)
     {
         sort(_lights.begin(), _lights.end(), lightCompareCastShadow);
         _lightOrderDirty = false;
     }
+
+    for (BaseLight* light : getLights())
+    {
+        switch(light->getLightType())
+        {
+            case LightType::DIRECTIONAL:
+                static_cast<DirectionLight*>(light)->updateShadowCamera();
+                break;
+            case LightType::SPOT:
+                static_cast<SpotLight*>(light)->updateShadowCamera();
+                break;
+            default:
+                break;
+        }
+    }
+    // done updating lights
 
     for (const auto& camera : getCameras())
     {
@@ -229,10 +246,10 @@ void Scene::render(Renderer* renderer, const Mat4* eyeTransforms, const Mat4* ey
             switch(light->getLightType())
             {
                 case LightType::DIRECTIONAL:
-					shadowCamera = static_cast<DirectionLight*>(light)->getOrCreateShadowCamera();
+					shadowCamera = static_cast<DirectionLight*>(light)->_shadowCamera;
 					break;
                 case LightType::SPOT:
-                    shadowCamera = static_cast<SpotLight*>(light)->getOrCreateShadowCamera();
+                    shadowCamera = static_cast<SpotLight*>(light)->_shadowCamera;
 					break;
                 default:
                     break;

@@ -606,15 +606,12 @@ void Mesh::setLightUniforms(Pass* pass, Scene* scene, const Vec4& color, unsigne
                         if(enabledDirLightShadowNum < maxDirLightShadow)
                         {
                             auto dirLight = static_cast<DirectionLight*>(light);
-                            if (dirLight->getCastShadow() && recieveShadow)
+                            if (dirLight->getCastShadow() && dirLight->_shadowCamera && recieveShadow)
                             {
-                                if (Camera* camera = dirLight->getOrCreateShadowCamera())
-                                {
-                                    const Mat4& mat = camera->getViewProjectionMatrix();
-                                    _dirLightUniformShadowMatrixValues[enabledDirLightShadowNum].set(mat);
-                                    _dirLightUniformShadowMapValues[enabledDirLightShadowNum] = camera->getFrameBufferObject()->getDepthStencilTarget()->getTexture()->getName();
-                                }
-
+                                Camera* camera = dirLight->_shadowCamera.get();
+                                const Mat4& mat = camera->getViewProjectionMatrix();
+                                _dirLightUniformShadowMatrixValues[enabledDirLightShadowNum].set(mat);
+                                _dirLightUniformShadowMapValues[enabledDirLightShadowNum] = camera->getFrameBufferObject()->getDepthStencilTarget()->getTexture()->getName();
                                 _dirLightUniformShadowBiasValues[enabledDirLightShadowNum] = light->getShadowBias();
                             }
 							else
@@ -660,15 +657,12 @@ void Mesh::setLightUniforms(Pass* pass, Scene* scene, const Vec4& color, unsigne
                         if(enabledSpotLightShadowNum < maxSpotLightShadow)
                         {
                             auto spotLight = static_cast<SpotLight*>(light);
-                            if (spotLight->getCastShadow() && recieveShadow)
+                            if (spotLight->getCastShadow() && spotLight->_shadowCamera && recieveShadow)
                             {
-                                if (Camera* camera = spotLight->getOrCreateShadowCamera())
-                                {
-                                    const Mat4& mat = camera->getViewProjectionMatrix();
-                                    _spotLightUniformShadowMatrixValues[enabledSpotLightShadowNum].set(mat);
-                                    _spotLightUniformShadowMapValues[enabledSpotLightShadowNum] = camera->getFrameBufferObject()->getDepthStencilTarget()->getTexture()->getName();
-                                }
-
+                                Camera* camera = spotLight->_shadowCamera.get();
+                                const Mat4& mat = camera->getViewProjectionMatrix();
+                                _spotLightUniformShadowMatrixValues[enabledSpotLightShadowNum].set(mat);
+                                _spotLightUniformShadowMapValues[enabledSpotLightShadowNum] = camera->getFrameBufferObject()->getDepthStencilTarget()->getTexture()->getName();
                                 _spotLightUniformShadowBiasValues[enabledSpotLightShadowNum] = light->getShadowBias();
                             }
 							else

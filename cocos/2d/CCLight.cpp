@@ -152,36 +152,28 @@ bool DirectionLight::init(const Vec3 &direction, const Color3B &color)
 	return true;
 }
 
-void DirectionLight::setCastShadow(bool castShadow)
+void DirectionLight::updateShadowCamera()
 {
-    BaseLight::setCastShadow(castShadow);
-    if (!castShadow)
-    {
-        if (Ref* ref = _shadowCamera.get())
-        {
-            ref->retain();
-            ref->autorelease();
-            _shadowCamera.reset();
-        }
-    }
-}
-
-Camera* DirectionLight::getOrCreateShadowCamera()
-{
-    if (!_shadowCamera)
+    if (isEnabled() && getCastShadow())
     {
         const unsigned int size = static_cast<unsigned int>(_shadowMapSize);
-        if (experimental::FrameBuffer* fbo = createFrameBufferObject(size, size))
+        if (!_shadowCamera || _shadowCamera->getFrameBufferObject()->getWidth() != size)
         {
-            if (_shadowCamera = Camera::createOrthographicOffCenter(-500.0f, 500.0f, -500.0f, 500.0f, 0.0f, 50000.0f))
+            _shadowCamera = nullptr; // avoid holding 2 fbo at the same time
+            if (experimental::FrameBuffer* fbo = createFrameBufferObject(size, size))
             {
-                _shadowCamera->setFrameBufferObject(fbo);
-                _shadowCamera->setCastShadow(true);
+                if (_shadowCamera = Camera::createOrthographicOffCenter(-500.0f, 500.0f, -500.0f, 500.0f, 0.0f, 50000.0f))
+                {
+                    _shadowCamera->setFrameBufferObject(fbo);
+                    _shadowCamera->setCastShadow(true);
+                }
             }
         }
     }
-
-    return _shadowCamera;
+    else
+    {
+        _shadowCamera = nullptr;
+    }
 }
 
 //////////////////////////////////////////////////////////////////
@@ -270,38 +262,30 @@ bool SpotLight::init(const Vec3 &direction, const Vec3 &position, const Color3B 
     return true;
 }
 
-void SpotLight::setCastShadow(bool castShadow)
+void SpotLight::updateShadowCamera()
 {
-    BaseLight::setCastShadow(castShadow);
-    if (!castShadow)
-    {
-        if (Ref* ref = _shadowCamera.get())
-        {
-            ref->retain();
-            ref->autorelease();
-            _shadowCamera.reset();
-        }
-    }
-}
-
-Camera* SpotLight::getOrCreateShadowCamera()
-{
-    if (!_shadowCamera || _shadowCameraDirty)
+    if (isEnabled() && getCastShadow())
     {
         const unsigned int size = static_cast<unsigned int>(_shadowMapSize);
-        if (RefPtr<experimental::FrameBuffer> fbo = _shadowCamera ? _shadowCamera->getFrameBufferObject() : createFrameBufferObject(size, size))
+        if (_shadowCameraDirty || !_shadowCamera || _shadowCamera->getFrameBufferObject()->getWidth() != size)
         {
-            const float fov = CC_RADIANS_TO_DEGREES(_outerAngle * 2.0f);
-            if (_shadowCamera = Camera::createPerspective(fov, 1.0f, 1.0f, _range))
+            _shadowCamera = nullptr; // avoid holding 2 fbo at the same time
+            if (experimental::FrameBuffer* fbo = createFrameBufferObject(size, size))
             {
-                _shadowCamera->setFrameBufferObject(fbo);
-                _shadowCamera->setCastShadow(true);
-                _shadowCameraDirty = false;
+                const float fov = CC_RADIANS_TO_DEGREES(_outerAngle * 2.0f);
+                if (_shadowCamera = Camera::createPerspective(fov, 1.0f, 1.0f, _range))
+                {
+                    _shadowCamera->setFrameBufferObject(fbo);
+                    _shadowCamera->setCastShadow(true);
+                    _shadowCameraDirty = false;
+                }
             }
         }
     }
-
-    return _shadowCamera;
+    else
+    {
+        _shadowCamera = nullptr;
+    }
 }
 /////////////////////////////////////////////////////////////
 
