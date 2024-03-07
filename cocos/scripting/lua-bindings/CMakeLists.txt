@@ -9,7 +9,6 @@ set(lua_bindings_manual_headers
     manual/CCLuaBridge.h
     manual/extension/lua_cocos2dx_extension_manual.h
     manual/LuaBasicConversions.h
-    manual/spine/LuaSkeletonAnimation.h
     manual/platform/ios/CCLuaObjcBridge.h
     manual/network/lua_cocos2dx_network_manual.h
     manual/network/lua_xml_http_request.h
@@ -59,8 +58,6 @@ set(lua_bindings_manual_files
     manual/network/Lua_web_socket.cpp
     manual/network/lua_xml_http_request.cpp
     manual/network/lua_downloader.cpp
-    manual/spine/lua_cocos2dx_spine_manual.cpp
-    manual/spine/LuaSkeletonAnimation.cpp
     manual/ui/lua_cocos2dx_experimental_video_manual.cpp
     manual/ui/lua_cocos2dx_ui_manual.cpp
     manual/audioengine/lua_cocos2dx_audioengine_manual.cpp
@@ -74,7 +71,6 @@ set(lua_bindings_auto_headers
     auto/lua_cocos2dx_audioengine_auto.hpp
     auto/lua_cocos2dx_3d_auto.hpp
     auto/lua_cocos2dx_controller_auto.hpp
-    auto/lua_cocos2dx_spine_auto.hpp
     auto/lua_cocos2dx_experimental_webview_auto.hpp
     auto/lua_cocos2dx_auto.hpp
     auto/lua_cocos2dx_experimental_video_auto.hpp
@@ -96,7 +92,6 @@ set(lua_bindings_auto_files
     auto/lua_cocos2dx_experimental_video_auto.cpp
     auto/lua_cocos2dx_extension_auto.cpp
     auto/lua_cocos2dx_physics_auto.cpp
-    auto/lua_cocos2dx_spine_auto.cpp
     auto/lua_cocos2dx_csloader_auto.cpp
     auto/lua_cocos2dx_ui_auto.cpp
     auto/lua_cocos2dx_audioengine_auto.cpp
@@ -106,6 +101,7 @@ set(lua_bindings_auto_files
 
 option(EXPORT_EDITOR_COCOSBUILDER "Export cocosbuilder when BUILD_EDITOR_COCOSBUILDER is on" ON)
 option(EXPORT_EDITOR_COCOSTUDIO "Export cocostudio when BUILD_EDITOR_COCOSTUDIO is on" ON)
+option(EXPORT_EDITOR_SPINE "Export spine when BUILD_EDITOR_SPINE is on" ON)
 
 if(NOT BUILD_EDITOR_COCOSBUILDER)
     set(EXPORT_EDITOR_COCOSBUILDER OFF)
@@ -154,6 +150,29 @@ if(EXPORT_EDITOR_COCOSTUDIO)
     set(lua_bindings_auto_files
         ${lua_bindings_auto_files}
         auto/lua_cocos2dx_studio_auto.cpp
+        )
+endif()
+
+if(NOT BUILD_EDITOR_SPINE)
+    set(EXPORT_EDITOR_SPINE OFF)
+endif()
+if(EXPORT_EDITOR_SPINE)
+    set(lua_bindings_manual_headers
+        ${lua_bindings_manual_headers}
+        manual/spine/LuaSkeletonAnimation.h
+        )
+    set(lua_bindings_manual_files
+        ${lua_bindings_manual_files}
+        manual/spine/lua_cocos2dx_spine_manual.cpp
+        manual/spine/LuaSkeletonAnimation.cpp
+        )
+    set(lua_bindings_auto_headers
+        ${lua_bindings_auto_headers}
+        auto/lua_cocos2dx_spine_auto.hpp
+        )
+    set(lua_bindings_auto_files
+        ${lua_bindings_auto_files}
+        auto/lua_cocos2dx_spine_auto.cpp
         )
 endif()
 
@@ -231,6 +250,12 @@ if(EXPORT_EDITOR_COCOSTUDIO)
     target_compile_definitions(luacocos2d PUBLIC CC_EXPORT_COCOSTUDIO=1)
 else()
     target_compile_definitions(luacocos2d PUBLIC CC_EXPORT_COCOSTUDIO=0)
+endif()
+
+if(EXPORT_EDITOR_SPINE)
+    target_compile_definitions(luacocos2d PUBLIC CC_EXPORT_SPINE=1)
+else()
+    target_compile_definitions(luacocos2d PUBLIC CC_EXPORT_SPINE=0)
 endif()
 
 set_target_properties(luacocos2d
