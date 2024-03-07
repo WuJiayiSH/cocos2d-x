@@ -35,6 +35,7 @@ THE SOFTWARE.
 #include "renderer/CCRenderer.h"
 #include "renderer/CCFrameBuffer.h"
 #include "platform/CCDataManager.h"
+#include "2d/CCLight.h"
 
 #if CC_USE_PHYSICS
 #include "physics/CCPhysicsWorld.h"

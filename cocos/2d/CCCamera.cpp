@@ -37,6 +37,7 @@
 #include "renderer/ccGLStateCache.h"
 #include "renderer/CCFrameBuffer.h"
 #include "renderer/CCRenderState.h"
+#include "base/ccUtils.h"
 
 NS_CC_BEGIN
 

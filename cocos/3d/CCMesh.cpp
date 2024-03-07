@@ -40,6 +40,7 @@
 #include "renderer/CCRenderer.h"
 #include "renderer/CCVertexAttribBinding.h"
 #include "math/Mat4.h"
+#include "base/ccUtils.h"
 
 using namespace std;
 

@@ -27,6 +27,8 @@
 #define __CCLIGHT_H__
 
 #include "2d/CCNode.h"
+#include "2d/CCCamera.h"
+#include "base/CCRefPtr.h"
 
 NS_CC_BEGIN
 

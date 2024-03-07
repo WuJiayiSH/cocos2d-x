@@ -25,6 +25,7 @@
 #include "2d/CCLight.h"
 #include <cmath>
 #include "2d/CCScene.h"
+#include "base/ccUtils.h"
 
 NS_CC_BEGIN
 
