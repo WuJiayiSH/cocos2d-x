@@ -168,9 +168,6 @@ public:
 CC_CONSTRUCTOR_ACCESS:
     DirectionLight();
     virtual ~DirectionLight();
-    
-protected:
-    bool init(const Vec3 &direction, const Color3B &color);
 
 private:
     void updateShadowCamera();
@@ -205,8 +202,6 @@ CC_CONSTRUCTOR_ACCESS:
     virtual ~PointLight();
     
 protected:
-    bool init(const Vec3 &position, const Color3B &color, float range);
-
     float _range;
 };
 
@@ -299,8 +294,6 @@ CC_CONSTRUCTOR_ACCESS:
     virtual ~SpotLight();
     
 protected:
-    bool init(const Vec3 &direction, const Vec3 &position, const Color3B &color, float innerAngle, float outerAngle, float range);
-
     float _range;
     float _innerAngle;
     float _cosInnerAngle;
@@ -333,9 +326,6 @@ public:
 CC_CONSTRUCTOR_ACCESS:
     AmbientLight();
     virtual ~AmbientLight();
-
-protected:
-    bool init(const Color3B &color);
 };
 
 NS_CC_END
