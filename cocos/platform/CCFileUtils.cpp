@@ -273,7 +273,10 @@ public:
                 if (sName == "string")
                     _curArray->push_back(Value(_curValue));
                 else if (sName == "integer")
-                    _curArray->push_back(Value(atoi(_curValue.c_str())));
+                {
+                    const long long ll = std::atoll(_curValue.c_str());
+                    _curArray->push_back(ll >= 0 ? Value(static_cast<unsigned int>(ll)) : Value(static_cast<int>(ll)));
+                }
                 else
                     _curArray->push_back(Value(std::atof(_curValue.c_str())));
             }
@@ -282,7 +285,10 @@ public:
                 if (sName == "string")
                     (*_curDict)[_curKey] = Value(_curValue);
                 else if (sName == "integer")
-                    (*_curDict)[_curKey] = Value(atoi(_curValue.c_str()));
+                {
+                    const long long ll = std::atoll(_curValue.c_str());
+                    (*_curDict)[_curKey] = ll >= 0 ? Value(static_cast<unsigned int>(ll)) : Value(static_cast<int>(ll));
+                }
                 else
                     (*_curDict)[_curKey] = Value(std::atof(_curValue.c_str()));
             }
@@ -456,10 +462,21 @@ static tinyxml2::XMLElement* generateElementForObject(const Value& value, tinyxm
     }
 
     // object is integer
-    if (value.getType() == Value::Type::INTEGER)
+    if (value.getType() == Value::Type::INTEGER || value.getType() == Value::Type::UNSIGNED)
     {
         tinyxml2::XMLElement* node = doc->NewElement("integer");
         tinyxml2::XMLText* content = doc->NewText(value.asString().c_str());
+        node->LinkEndChild(content);
+        return node;
+    }
+
+    // object is byte
+    if (value.getType() == Value::Type::BYTE)
+    {
+        tinyxml2::XMLElement* node = doc->NewElement("integer");
+        char buf[4];
+        sprintf(buf, "%d", static_cast<int>(value.asByte()));
+        tinyxml2::XMLText* content = doc->NewText(buf);
         node->LinkEndChild(content);
         return node;
     }
