@@ -67,9 +67,8 @@ EMSDK_ROOT = 'EMSDK_ROOT'
 def _check_python_version():
     major_ver = sys.version_info[0]
     if major_ver > 2:
-        print ("The python version is %d.%d. But python 2.x is required. (Version 2.7 is well tested)\n"
+        print ("The python version is %d.%d. Please report any issue to the GitHub page. (Version 2.7 is the stable version)\n"
                "Download it here: https://www.python.org/" % (major_ver, sys.version_info[1]))
-        return False
 
     return True
 
@@ -147,7 +146,7 @@ class SetEnvVar(object):
     # modify registry table to add an environment variable on windows
     def _set_environment_variable_win32(self, key, value):
         ret = False
-        import _winreg
+        _winreg = __import__('winreg' if sys.version_info[0] > 2 else '_winreg') 
         try:
             env = None
             env = _winreg.OpenKeyEx(_winreg.HKEY_CURRENT_USER,
@@ -245,7 +244,7 @@ class SetEnvVar(object):
                         if ret is not None:
                             break
             else:
-                import _winreg
+                _winreg = __import__('winreg' if sys.version_info[0] > 2 else '_winreg') 
                 try:
                     env = None
                     env = _winreg.OpenKeyEx(_winreg.HKEY_CURRENT_USER,
@@ -268,8 +267,10 @@ class SetEnvVar(object):
         return ret
 
     def _get_input_value(self, var_name):
-        ret = raw_input(
-            '  ->Please enter the path of %s (or press Enter to skip):' % var_name)
+        if sys.version_info[0] > 2:
+            ret = input('  ->Please enter the path of %s (or press Enter to skip):' % var_name)
+        else:
+            ret = raw_input('  ->Please enter the path of %s (or press Enter to skip):' % var_name)
         ret.rstrip(" \t")
         return ret
 
@@ -395,7 +396,7 @@ class SetEnvVar(object):
             return False
 
     def remove_dir_from_win_path(self, remove_dir):
-        import _winreg
+        _winreg = __import__('winreg' if sys.version_info[0] > 2 else '_winreg') 
         try:
             env = None
             path = None
@@ -425,7 +426,7 @@ class SetEnvVar(object):
 
     def set_windows_path(self, add_dir):
         ret = False
-        import _winreg
+        _winreg = __import__('winreg' if sys.version_info[0] > 2 else '_winreg') 
         try:
             env = None
             path = None
