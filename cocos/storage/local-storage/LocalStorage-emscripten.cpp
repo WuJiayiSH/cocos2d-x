@@ -58,6 +58,9 @@ bool localStorageGetItem( const std::string& key, std::string *outItem )
 {
     char *str = (char*)EM_ASM_INT({
         var jsString = localStorage.getItem(UTF8ToString($0));
+        if (!jsString)
+            return 0;
+
         var lengthBytes = lengthBytesUTF8(jsString)+1;
         // 'jsString.length' would return the length of the string as UTF-16
         // units, but Emscripten C strings operate as UTF-8.
@@ -65,8 +68,19 @@ bool localStorageGetItem( const std::string& key, std::string *outItem )
         stringToUTF8(jsString, stringOnWasmHeap, lengthBytes);
         return stringOnWasmHeap;
     }, key.c_str());
-    outItem->assign(str, strlen(str));
-    free(str);
+
+    if (str)
+    {
+        if (outItem)
+            outItem->assign(str, strlen(str));
+
+        free(str);
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
 
 /** removes an item from the LS */
