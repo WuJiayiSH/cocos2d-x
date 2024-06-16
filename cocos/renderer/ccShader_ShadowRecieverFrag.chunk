@@ -20,7 +20,7 @@ float CCSampleShadow(sampler2D shadowMap, vec4 shadowCoord, float shadowBias)
     if (shadowCoord.x < 0.0 || shadowCoord.x > 1.0 || shadowCoord.y < 0.0 || shadowCoord.y > 1.0 || shadowCoord.z > 1.0)
         return 1.0;
 
-    return step(shadowCoord.z, texture(shadowMap, shadowCoord.xy).r);
+    return step(shadowCoord.z, texture2D(shadowMap, shadowCoord.xy).r);
 }
 
 )";

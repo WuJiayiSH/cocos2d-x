@@ -106,7 +106,7 @@ namespace
 	{
         const char* ptr = source;
 		std::cmatch match;
-        static const std::regex regex("^\\s*#include\\s+<([^<>]+)>\\s*$");
+        static const std::regex regex("(^|\\n)\\s*#include\\s+<([^<>]+)>\\s*($|\\n)");
         while (std::regex_search(ptr, match, regex))
         {
             out.append(match.prefix());
