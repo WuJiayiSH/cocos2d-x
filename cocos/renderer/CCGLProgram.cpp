@@ -112,7 +112,7 @@ namespace
             out.append(match.prefix());
 
             std::string content;
-            if (!getIncludeContent(match[1], content) || !resolveIncludes(content.c_str(), out))
+            if (!getIncludeContent(match[2], content) || !resolveIncludes(content.c_str(), out))
                 return false;
 
             ptr = ptr + match.position() + match.length();
