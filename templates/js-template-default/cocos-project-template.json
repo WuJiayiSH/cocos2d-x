@@ -4,10 +4,6 @@
             "frameworks/runtime-src"
          ],
          "append_dir": [
-            {
-                "from": "web",
-                "to": "frameworks/cocos2d-html5"
-            }
          ]
       },
       "do_add_native_support":{
@@ -42,7 +38,6 @@
          "project_replace_project_name":{
             "src_project_name":"HelloJavascript",
             "files":[
-               "manifest.webapp",
                "frameworks/runtime-src/proj.win32/PROJECT_NAME.vcxproj",
                "frameworks/runtime-src/proj.win32/PROJECT_NAME.vcxproj.filters",
                "frameworks/runtime-src/proj.win32/PROJECT_NAME.vcxproj.user",

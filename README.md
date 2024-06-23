@@ -1,7 +1,6 @@
-Lua playground: https://wujiayish.github.io/cocos2d-x-examples/lua-playground.html
 Examples: https://wujiayish.github.io/cocos2d-x-examples/
 
-In order to build cocos2d-x cpp & lua project into HTML5/wasm, make sure you have installed emsdk(https://emscripten.org/docs/getting_started/downloads.html)
+In order to build cocos2d-x project into HTML5/wasm, make sure you have installed emsdk(3.1.10 is recommended)
 
     # Get the emsdk repo
     git clone https://github.com/emscripten-core/emsdk.git
@@ -9,11 +8,11 @@ In order to build cocos2d-x cpp & lua project into HTML5/wasm, make sure you hav
     # Enter that directory
     cd emsdk
 
-    # Download and install the SDK tools, 2.0.34 is recommended.
-    ./emsdk install 2.0.34
+    # Download and install the SDK tools, 3.1.10 is recommended.
+    ./emsdk install 3.1.10
 
     # Make the SDK "active" for the current user. (writes .emscripten file)
-    ./emsdk activate 2.0.34
+    ./emsdk activate 3.1.10
 
     # Activate PATH and other environment variables in the current terminal
     source ./emsdk_env.sh
@@ -34,7 +33,7 @@ On Linux and Mac:
     cd MyGame
     cocos compile -p emscripten -m release
 
-On Window, install cmake and ninja(https://github.com/ninja-build/ninja) and make sure they can be found from command line:
+On Window 10 or above, install cmake and ninja 1.12.0 or above(https://github.com/ninja-build/ninja) and make sure they can be found from command line:
 
     # Install cocos2d-x with python2.7
     git clone https://github.com/WuJiayiSH/cocos2d-x.git
@@ -49,14 +48,13 @@ On Window, install cmake and ninja(https://github.com/ninja-build/ninja) and mak
     cd MyGame
     cocos compile -p emscripten -m release
 
-(On Windows earlier than 10, you might have to checkout emsdk 2.0.8 and fix URL in libjpeg.py manually, check https://github.com/emscripten-core/emscripten/issues/13067 and https://github.com/emscripten-core/emscripten/pull/13869 for more details)
-
-Thread support is enabled by default, the build need to be served with addtional headers for it to work, see https://developer.chrome.com/blog/enabling-shared-array-buffer/ 
+Thread support is enabled by default, you can use Chrome argument --enable-features=SharedArrayBuffer for test or serve the build with addtional headers for it to work, see https://developer.chrome.com/blog/enabling-shared-array-buffer/ 
 
     Cross-Origin-Embedder-Policy: require-corp
     Cross-Origin-Opener-Policy: same-origin
 
-It can be disabled by removing "-s USE_PTHREADS" from CmakeLists.txt, in the case most thread-related functions like addImageAsync will not work.
+You can disable thread support in cpp or lua projects by removing "-s USE_PTHREADS" from CmakeLists.txt, in the case most thread-related functions like addImageAsync will not work. But you may have to enable it in js project because SpiderMonkey uses threads.
+
 Thread support uses Javascript SharedArrayBuffer, check https://caniuse.com/sharedarraybuffer for browser compatibility.
 
 TODO: 

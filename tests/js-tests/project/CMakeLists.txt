@@ -27,6 +27,10 @@ set(APP_NAME js-tests)
 
 project(${APP_NAME})
 
+if(EMSCRIPTEN)
+    set(CMAKE_CXX_FLAGS  "-s USE_PTHREADS -s USE_LIBJPEG=1 -s USE_LIBPNG=1 -s USE_ZLIB=1 -s USE_FREETYPE=1")
+endif()
+
 if(NOT DEFINED BUILD_ENGINE_DONE)
     set(COCOS2DX_ROOT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../../..)
     set(CMAKE_MODULE_PATH ${COCOS2DX_ROOT_PATH}/cmake/Modules/)
@@ -44,7 +48,6 @@ set(res_main_files
 # "${COCOS2DX_ROOT_PATH}/tests/cpp-tests/Resources"
 set(res_res_folders
     "${CMAKE_CURRENT_SOURCE_DIR}/../resjs"
-    "${CMAKE_CURRENT_SOURCE_DIR}/../res"
     "${COCOS2DX_ROOT_PATH}/tests/cpp-tests/Resources"
     )
 set(res_src_folders
@@ -116,6 +119,8 @@ elseif(APPLE)
              )
     endif()
     list(APPEND GAME_SOURCE ${cc_common_res})
+elseif(EMSCRIPTEN)
+    list(APPEND GAME_SOURCE proj.emscripten/main.cpp)
 endif()
 
 list(APPEND GAME_HEADER
@@ -170,3 +175,30 @@ if(LINUX OR WINDOWS)
     cocos_copy_target_res(${APP_NAME} COPY_TO ${APP_RES_DIR}/script FOLDERS ${res_script_folders})
 endif()
 
+if(EMSCRIPTEN)
+    set(CMAKE_EXECUTABLE_SUFFIX ".html")
+    target_link_options(${APP_NAME} PRIVATE
+                        "-sEXPORTED_FUNCTIONS=[_cocos_ccdirector_pause,_cocos_ccdirector_resume,_cocos_ccdirector_step,_main]"
+                        "-sEXPORTED_RUNTIME_METHODS=[ccall,cwrap]"
+                        )
+    set(EMSCRIPTEN_LINK_FLAGS "-s PTHREAD_POOL_SIZE=8 -s FETCH=1 -s USE_GLFW=3 -s FORCE_FILESYSTEM=1 -s VERBOSE=1 -s ERROR_ON_UNDEFINED_SYMBOLS=0 -lidbfs.js -s MIN_WEBGL_VERSION=2 -s MAX_WEBGL_VERSION=2 -s INITIAL_MEMORY=512MB --shell-file ${CMAKE_CURRENT_SOURCE_DIR}/../index.html --use-preload-cache")
+
+    foreach(res_main_file IN LISTS res_main_files)
+        get_filename_component(res_main_filename ${res_main_file} NAME)
+        string(APPEND EMSCRIPTEN_LINK_FLAGS " --preload-file ${res_main_file}@/${res_main_filename}")
+    endforeach()
+
+    foreach(res_res_folder IN LISTS res_res_folders)
+        string(APPEND EMSCRIPTEN_LINK_FLAGS " --preload-file ${res_res_folder}/@/res")
+    endforeach()
+
+    foreach(res_src_folder IN LISTS res_src_folders)
+        string(APPEND EMSCRIPTEN_LINK_FLAGS " --preload-file ${res_src_folder}/@/src")
+    endforeach()
+
+    foreach(res_script_folder IN LISTS res_script_folders)
+        string(APPEND EMSCRIPTEN_LINK_FLAGS " --preload-file ${res_script_folder}/@/script")
+    endforeach()
+    
+    set_target_properties(${APP_NAME} PROPERTIES LINK_FLAGS "${EMSCRIPTEN_LINK_FLAGS}")
+endif()
