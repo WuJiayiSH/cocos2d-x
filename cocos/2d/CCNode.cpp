@@ -494,6 +494,21 @@ void Node::setScaleY(float scaleY)
     _transformUpdated = _transformDirty = _inverseDirty = true;
 }
 
+void Node::setScale3D(const Vec3& scale)
+{
+    if (_scaleX == scale.x && _scaleY == scale.y && _scaleZ == scale.z)
+        return;
+
+    _scaleX = scale.x;
+    _scaleY = scale.y;
+    _scaleZ = scale.z;
+    _transformUpdated = _transformDirty = _inverseDirty = true;
+}
+
+Vec3 Node::getScale3D() const
+{
+    return Vec3(_scaleX, _scaleY, _scaleZ);
+}
 
 /// position getter
 const Vec2& Node::getPosition() const

@@ -321,6 +321,24 @@ public:
     virtual void setScale(float scaleX, float scaleY);
 
     /**
+     * Sets the scale (x,y,z) of the node.
+     *
+     * @param scale The scale factor on X, Y and Z axis.
+     *
+     * @warning The physics body doesn't support this.
+     */
+    virtual void setScale3D(const Vec3& scale);
+
+    /**
+     * Gets the scale factor (x,y,z) of the node.
+     *
+     * @see setScale3D(const Vec3&)
+     *
+     * @return The scale factor on X, Y and Z axis.
+     */
+    virtual Vec3 getScale3D() const;
+
+    /**
      * Sets the position (x,y) of the node in its parent's coordinate system.
      *
      * Usually we use `Vec2(x,y)` to compose Vec2 object.
