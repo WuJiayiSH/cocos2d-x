@@ -178,7 +178,11 @@ public:
 private:
 	Ref::WeakPtrCounter* _counter;
 
-    static_assert(std::is_base_of<Ref, typename std::remove_const<T>::type>::value, "T must be derived from Ref");
+    /*
+    Note: Removed the following assertion because it blocks class T from holding a WeakPtr<T>, e.g.
+    class T : public cocos2d::Ref {cocos2d::WeakPtr<T> _member;}; // does not compile
+    */
+    // static_assert(std::is_base_of<Ref, typename std::remove_const<T>::type>::value, "T must be derived from Ref");
 };
 
 template <class T> inline

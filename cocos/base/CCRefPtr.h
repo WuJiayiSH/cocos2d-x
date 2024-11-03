@@ -267,8 +267,12 @@ public:
 private:
     T * _ptr;
 
+    /*
+    Note: Removed the following assertion because it blocks class T from holding a RefPtr<T>, e.g.
+    class T : public cocos2d::Ref {cocos2d::RefPtr<T> _member;}; // does not compile
+    */
     // NOTE: We can ensure T is derived from cocos2d::Ref at compile time here.
-    static_assert(std::is_base_of<Ref, typename std::remove_const<T>::type>::value, "T must be derived from Ref");
+    // static_assert(std::is_base_of<Ref, typename std::remove_const<T>::type>::value, "T must be derived from Ref");
 };
 
 template <class T> inline
