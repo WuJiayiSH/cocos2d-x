@@ -25,7 +25,7 @@ public:
 
     WeakPtr(T* ptr)
     {
-        _counter = ptr ? ptr->getWeakPtrCounter() : nullptr;
+        _counter = ptr ? reinterpret_cast<const Ref*>(ptr)->getWeakPtrCounter() : nullptr;
         CC_SAFE_RETAIN(_counter);
     }
 
@@ -75,10 +75,10 @@ public:
         {
             CC_SAFE_RELEASE_NULL(_counter);
         }
-        else if (_counter != other->getWeakPtrCounter())
+        else if (_counter != reinterpret_cast<const Ref*>(other)->getWeakPtrCounter())
         {
             CC_SAFE_RELEASE(_counter);
-            _counter = other->getWeakPtrCounter();
+            _counter = reinterpret_cast<const Ref*>(other)->getWeakPtrCounter();
             CC_SAFE_RETAIN(_counter);
         }
         
@@ -93,24 +93,24 @@ public:
 
     operator T* () const
     {
-        return _counter ? static_cast<T*>(_counter->_target) : nullptr;
+        return _counter ? reinterpret_cast<T*>(_counter->_target) : nullptr;
     }
     
     T& operator * () const
     {
         CCASSERT(_counter && _counter->_target, "Attempt to dereference a null pointer!");
-        return *static_cast<T*>(_counter->_target);
+        return *reinterpret_cast<T*>(_counter->_target);
     }
     
     T* operator->() const
     {
         CCASSERT(_counter && _counter->_target, "Attempt to dereference a null pointer!");
-        return static_cast<T*>(_counter->_target);
+        return reinterpret_cast<T*>(_counter->_target);
     }
     
     T* get() const
     {
-        return _counter ? static_cast<T*>(_counter->_target) : nullptr;
+        return _counter ? reinterpret_cast<T*>(_counter->_target) : nullptr;
     }
 
     bool operator == (const WeakPtr<T>& other) const { return get() == other.get(); }
