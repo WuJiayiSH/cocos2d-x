@@ -34,7 +34,8 @@
 NS_CC_BEGIN
 namespace experimental{
 FrameBuffer* FrameBuffer::_defaultFBO = nullptr;
-std::set<FrameBuffer*> FrameBuffer::_frameBuffers;
+// NOTE: don't remove reference, otherwise _frameBuffers can be destroyed earlier than FrameBuffer objects when program exit
+std::set<FrameBuffer*>& FrameBuffer::_frameBuffers = *new std::set<FrameBuffer*>();
 
 Viewport::Viewport(float left, float bottom, float width, float height)
 : _left(left)

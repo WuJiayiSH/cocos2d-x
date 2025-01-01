@@ -203,7 +203,7 @@ public:
 private:
     //static GLuint _defaultFBO;
     static FrameBuffer* _defaultFBO;
-    static std::set<FrameBuffer*> _frameBuffers;
+    static std::set<FrameBuffer*>& _frameBuffers;
     
 private:
 #if CC_ENABLE_CACHE_TEXTURE_DATA
