@@ -554,7 +554,13 @@ end
 function string.split(input, delimiter)
     input = tostring(input)
     delimiter = tostring(delimiter)
-    if (delimiter=='') then return false end
+    if (delimiter=='') then
+        local arr = {}
+        for i = 1, #input do
+            arr[i] = string.sub(input, i, i)
+        end
+        return arr
+    end
     local pos,arr = 0, {}
     -- for each divider found
     for st,sp in function() return string.find(input, delimiter, pos, true) end do
