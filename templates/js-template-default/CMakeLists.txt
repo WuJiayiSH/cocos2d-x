@@ -31,7 +31,7 @@ set(APP_NAME HelloJavascript)
 project(${APP_NAME})
 
 if(EMSCRIPTEN)
-    set(CMAKE_CXX_FLAGS  "-s USE_PTHREADS -s USE_LIBJPEG=1 -s USE_LIBPNG=1 -s USE_ZLIB=1 -s USE_FREETYPE=1")
+    set(CMAKE_CXX_FLAGS  "-s USE_PTHREADS -s USE_LIBJPEG=1 -s USE_LIBPNG=1 -s USE_ZLIB=1 -s USE_FREETYPE=1 -msse -msimd128 ")
 endif()
 
 set(RUNTIME_SRC_ROOT ${CMAKE_CURRENT_SOURCE_DIR}/frameworks/runtime-src)
