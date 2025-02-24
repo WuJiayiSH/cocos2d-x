@@ -61,7 +61,7 @@ public:
     /** Returns a copy of the Ref.
      * @deprecated Use clone() instead.
      */
-    CC_DEPRECATED_ATTRIBUTE Ref* copy() const
+    [[deprecated]] Ref* copy() const
     {
         // use "clone" instead
         CC_ASSERT(false);

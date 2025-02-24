@@ -70,15 +70,15 @@ public:
     static Layer *create();
 
     // Deprecated touch callbacks.
-    CC_DEPRECATED_ATTRIBUTE virtual bool ccTouchBegan(Touch *pTouch, Event *pEvent) final;
-    CC_DEPRECATED_ATTRIBUTE virtual void ccTouchMoved(Touch *pTouch, Event *pEvent) final;
-    CC_DEPRECATED_ATTRIBUTE virtual void ccTouchEnded(Touch *pTouch, Event *pEvent) final;
-    CC_DEPRECATED_ATTRIBUTE virtual void ccTouchCancelled(Touch *pTouch, Event *pEvent) final;
+    [[deprecated]] virtual bool ccTouchBegan(Touch *pTouch, Event *pEvent) final;
+    [[deprecated]] virtual void ccTouchMoved(Touch *pTouch, Event *pEvent) final;
+    [[deprecated]] virtual void ccTouchEnded(Touch *pTouch, Event *pEvent) final;
+    [[deprecated]] virtual void ccTouchCancelled(Touch *pTouch, Event *pEvent) final;
     
-    CC_DEPRECATED_ATTRIBUTE virtual void ccTouchesBegan(__Set *pTouches, Event *pEvent) final;
-    CC_DEPRECATED_ATTRIBUTE virtual void ccTouchesMoved(__Set *pTouches, Event *pEvent) final;
-    CC_DEPRECATED_ATTRIBUTE virtual void ccTouchesEnded(__Set *pTouches, Event *pEvent) final;
-    CC_DEPRECATED_ATTRIBUTE virtual void ccTouchesCancelled(__Set *pTouches, Event *pEvent) final;
+    [[deprecated]] virtual void ccTouchesBegan(__Set *pTouches, Event *pEvent) final;
+    [[deprecated]] virtual void ccTouchesMoved(__Set *pTouches, Event *pEvent) final;
+    [[deprecated]] virtual void ccTouchesEnded(__Set *pTouches, Event *pEvent) final;
+    [[deprecated]] virtual void ccTouchesCancelled(__Set *pTouches, Event *pEvent) final;
     
     /* Callback function should not be deprecated, it will generate lots of warnings.
        Since 'setTouchEnabled' was deprecated, it will make warnings if developer overrides onTouchXXX and invokes setTouchEnabled(true) instead of using EventDispatcher::addEventListenerWithXXX.
@@ -145,7 +145,7 @@ public:
       @deprecated Please override onAcceleration 
       @js NA
      */
-    CC_DEPRECATED_ATTRIBUTE virtual void didAccelerate(Acceleration* /*accelerationValue*/) final {};
+    [[deprecated]] virtual void didAccelerate(Acceleration* /*accelerationValue*/) final {};
 
 	/* Callback function should not be deprecated, it will generate lots of warnings.
 	Since 'setAccelerometerEnabled' was deprecated, it will make warnings if developer overrides onAcceleration and invokes setAccelerometerEnabled(true) instead of using EventDispatcher::addEventListenerWithXXX.
@@ -168,7 +168,7 @@ public:
     @since v0.8.0
     @js NA
     */
-    CC_DEPRECATED_ATTRIBUTE virtual void registerWithTouchDispatcher() final {};
+    [[deprecated]] virtual void registerWithTouchDispatcher() final {};
 
     /** whether or not it will receive Touch events.
     You can enable / disable touch events with this property.
@@ -176,27 +176,27 @@ public:
     @since v0.8.1
     @js NA
     */
-    CC_DEPRECATED_ATTRIBUTE bool isTouchEnabled() const;
-    CC_DEPRECATED_ATTRIBUTE void setTouchEnabled(bool value);
+    [[deprecated]] bool isTouchEnabled() const;
+    [[deprecated]] void setTouchEnabled(bool value);
     
-    CC_DEPRECATED_ATTRIBUTE virtual void setTouchMode(Touch::DispatchMode mode);
-    CC_DEPRECATED_ATTRIBUTE virtual Touch::DispatchMode getTouchMode() const;
+    [[deprecated]] virtual void setTouchMode(Touch::DispatchMode mode);
+    [[deprecated]] virtual Touch::DispatchMode getTouchMode() const;
 
     /** 
       swallowsTouches of the touch events. Default is true 
       @js NA
      */
-    CC_DEPRECATED_ATTRIBUTE virtual void setSwallowsTouches(bool swallowsTouches);
-    CC_DEPRECATED_ATTRIBUTE virtual bool isSwallowsTouches() const;
+    [[deprecated]] virtual void setSwallowsTouches(bool swallowsTouches);
+    [[deprecated]] virtual bool isSwallowsTouches() const;
 
     /** whether or not it will receive Accelerometer events
     You can enable / disable accelerometer events with this property.
     @since v0.8.1
     @js NA
     */
-    CC_DEPRECATED_ATTRIBUTE virtual bool isAccelerometerEnabled() const;
-    CC_DEPRECATED_ATTRIBUTE virtual void setAccelerometerEnabled(bool value);
-    CC_DEPRECATED_ATTRIBUTE virtual void setAccelerometerInterval(double interval);
+    [[deprecated]] virtual bool isAccelerometerEnabled() const;
+    [[deprecated]] virtual void setAccelerometerEnabled(bool value);
+    [[deprecated]] virtual void setAccelerometerInterval(double interval);
 
     /** whether or not it will receive keyboard or keypad events
     You can enable / disable accelerometer events with this property.
@@ -204,20 +204,20 @@ public:
     @js NA
     */
 
-    CC_DEPRECATED_ATTRIBUTE virtual bool isKeyboardEnabled() const;
-    CC_DEPRECATED_ATTRIBUTE virtual void setKeyboardEnabled(bool value);
+    [[deprecated]] virtual bool isKeyboardEnabled() const;
+    [[deprecated]] virtual void setKeyboardEnabled(bool value);
 
     /** 
       Please use onKeyPressed instead. 
       @js NA
      */
-    CC_DEPRECATED_ATTRIBUTE virtual void keyPressed(int /*keyCode*/) final {};
+    [[deprecated]] virtual void keyPressed(int /*keyCode*/) final {};
     
     /** 
       Please use onKeyReleased instead. 
       @js NA
      */
-    CC_DEPRECATED_ATTRIBUTE virtual void keyReleased(int /*keyCode*/) final {};
+    [[deprecated]] virtual void keyReleased(int /*keyCode*/) final {};
 
 	/* Callback function should not be deprecated, it will generate lots of warnings.
 	Since 'setKeyboardEnabled' was deprecated, it will make warnings if developer overrides onKeyXXX and invokes setKeyboardEnabled(true) instead of using EventDispatcher::addEventListenerWithXXX.
@@ -235,15 +235,15 @@ public:
     */
     virtual void onKeyReleased(EventKeyboard::KeyCode keyCode, Event* event);
 
-    CC_DEPRECATED_ATTRIBUTE virtual bool isKeypadEnabled() const final { return _keyboardEnabled; }
-    CC_DEPRECATED_ATTRIBUTE virtual void setKeypadEnabled(bool value);
+    [[deprecated]] virtual bool isKeypadEnabled() const final { return _keyboardEnabled; }
+    [[deprecated]] virtual void setKeypadEnabled(bool value);
 
     /** 
       @deprecated Please override onKeyReleased and check the keycode of KeyboardEvent::KeyCode::Menu(KEY_BACKSPACE) instead. 
       @js NA
      */
-    CC_DEPRECATED_ATTRIBUTE virtual void keyBackClicked() final {};
-    CC_DEPRECATED_ATTRIBUTE virtual void keyMenuClicked() final {};
+    [[deprecated]] virtual void keyBackClicked() final {};
+    [[deprecated]] virtual void keyMenuClicked() final {};
 
     // Overrides
     virtual std::string getDescription() const override;
@@ -256,11 +256,11 @@ CC_CONSTRUCTOR_ACCESS:
 
 protected:
     //add the api for avoid use deprecated api
-    CC_DEPRECATED_ATTRIBUTE void _addTouchListener() {}
+    [[deprecated]] void _addTouchListener() {}
 
-    CC_DEPRECATED_ATTRIBUTE void addTouchListener() {}
-    CC_DEPRECATED_ATTRIBUTE int executeScriptTouchHandler(EventTouch::EventCode eventType, Touch* touch, Event* event);
-    CC_DEPRECATED_ATTRIBUTE int executeScriptTouchesHandler(EventTouch::EventCode eventType, const std::vector<Touch*>& touches, Event* event);
+    [[deprecated]] void addTouchListener() {}
+    [[deprecated]] int executeScriptTouchHandler(EventTouch::EventCode eventType, Touch* touch, Event* event);
+    [[deprecated]] int executeScriptTouchesHandler(EventTouch::EventCode eventType, const std::vector<Touch*>& touches, Event* event);
 
     bool _touchEnabled;
     bool _accelerometerEnabled;

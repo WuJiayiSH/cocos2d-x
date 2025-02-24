@@ -81,7 +81,7 @@ http://www.angelcode.com/products/bmfont/ (Free, Windows only)
 @since v0.8
 */
 
-class CC_DLL CC_DEPRECATED_ATTRIBUTE LabelBMFont : public Node, public LabelProtocol, public BlendProtocol
+class CC_DLL [[deprecated]] LabelBMFont : public Node, public LabelProtocol, public BlendProtocol
 {
 public:
     /**

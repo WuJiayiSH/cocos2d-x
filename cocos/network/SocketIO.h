@@ -172,7 +172,7 @@ public:
      *  @param  uri      the URI of the socket.io server.
      *  @return SIOClient* an initialized SIOClient if connected successfully, otherwise nullptr.
      */
-    CC_DEPRECATED_ATTRIBUTE  static SIOClient* connect(SocketIO::SIODelegate& delegate, const std::string& uri);
+    [[deprecated]]  static SIOClient* connect(SocketIO::SIODelegate& delegate, const std::string& uri);
 
 private:
 

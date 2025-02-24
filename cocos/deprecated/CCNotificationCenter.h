@@ -64,10 +64,10 @@ public:
     static void destroyInstance();
 
     /** @deprecated use getInstance() instead */
-    CC_DEPRECATED_ATTRIBUTE static __NotificationCenter *sharedNotificationCenter();
+    [[deprecated]] static __NotificationCenter *sharedNotificationCenter();
 
     /** @deprecated use destroyInstance() instead */
-    CC_DEPRECATED_ATTRIBUTE static void purgeNotificationCenter();
+    [[deprecated]] static void purgeNotificationCenter();
 
 
     /** @brief Adds an observer for the specified target.

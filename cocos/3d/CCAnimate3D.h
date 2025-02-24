@@ -111,8 +111,8 @@ public:
     static void setTransitionTime(float transTime) { if (transTime >= 0.f) _transTime = transTime; }
     
     /**get & set play reverse, these are deprecated, use set negative speed instead*/
-    CC_DEPRECATED_ATTRIBUTE bool getPlayBack() const { return _playReverse; }
-    CC_DEPRECATED_ATTRIBUTE void setPlayBack(bool reverse) { _playReverse = reverse; }
+    [[deprecated]] bool getPlayBack() const { return _playReverse; }
+    [[deprecated]] void setPlayBack(bool reverse) { _playReverse = reverse; }
     
     /**set animate quality*/
     void setQuality(Animate3DQuality quality);

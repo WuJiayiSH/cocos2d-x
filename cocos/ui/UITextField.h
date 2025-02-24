@@ -412,14 +412,14 @@ public:
      *@deprecated Use @see `setString(const std::string&)` instead.
      *@param text A string content.
      */
-    CC_DEPRECATED_ATTRIBUTE void setText(const std::string& text){this->setString(text);}
+    [[deprecated]] void setText(const std::string& text){this->setString(text);}
 
     /**
      *Query the content of TextField.
      *@deprecated Use @see `getString` instead.
      *@return The string value of TextField.
      */
-    CC_DEPRECATED_ATTRIBUTE const std::string& getStringValue()const{return this->getString();}
+    [[deprecated]] const std::string& getStringValue()const{return this->getString();}
     
     /**
      *Change content of TextField.
@@ -564,7 +564,7 @@ public:
      *@param target A pointer of `Ref*` type.
      *@param selector A member function pointer with type of `SEL_TextFieldEvent`.
      */
-    CC_DEPRECATED_ATTRIBUTE void addEventListenerTextField(Ref* target, SEL_TextFieldEvent selector);
+    [[deprecated]] void addEventListenerTextField(Ref* target, SEL_TextFieldEvent selector);
     /**
      * Add a event listener to TextField, when some predefined event happens, the callback will be called.
      *@param callback A callback function with type of `ccTextFieldCallback`.

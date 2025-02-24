@@ -365,7 +365,7 @@ public:
      * @param target A pointer of `Ref*` type.
      * @param selector A member function pointer with type of `SEL_ScrollViewEvent`.
      */
-    CC_DEPRECATED_ATTRIBUTE void addEventListenerScrollView(Ref* target, SEL_ScrollViewEvent selector);
+    [[deprecated]] void addEventListenerScrollView(Ref* target, SEL_ScrollViewEvent selector);
 
     /**
      * Add callback function which will be called  when scrollview event triggered.

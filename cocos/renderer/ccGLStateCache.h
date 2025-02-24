@@ -165,7 +165,7 @@ void CC_DLL deleteTexture(GLuint textureId);
  * If CC_ENABLE_GL_STATE_CACHE is disabled, it will call glDeleteTextures() directly.
  * @since v2.1.0
  */
-CC_DEPRECATED_ATTRIBUTE void CC_DLL deleteTextureN(GLuint textureUnit, GLuint textureId);
+[[deprecated]] void CC_DLL deleteTextureN(GLuint textureUnit, GLuint textureId);
 
 /** 
  * Select active texture unit.

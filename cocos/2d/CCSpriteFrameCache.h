@@ -145,7 +145,7 @@ public:
     /** @deprecated Use getInstance() instead
      @js NA
 	*/
-    CC_DEPRECATED_ATTRIBUTE static SpriteFrameCache* sharedSpriteFrameCache() { return SpriteFrameCache::getInstance(); }
+    [[deprecated]] static SpriteFrameCache* sharedSpriteFrameCache() { return SpriteFrameCache::getInstance(); }
 
     /** Destroys the cache. It releases all the Sprite Frames and the retained instance.
 	 * @js NA
@@ -155,7 +155,7 @@ public:
     /** @deprecated Use destroyInstance() instead
      * @js NA
      */
-    CC_DEPRECATED_ATTRIBUTE static void purgeSharedSpriteFrameCache() { return SpriteFrameCache::destroyInstance(); }
+    [[deprecated]] static void purgeSharedSpriteFrameCache() { return SpriteFrameCache::destroyInstance(); }
 
     /** Destructor.
      * @js NA
@@ -283,7 +283,7 @@ public:
     SpriteFrame* getSpriteFrameByName(const std::string& name);
 
     /** @deprecated use getSpriteFrameByName() instead */
-    CC_DEPRECATED_ATTRIBUTE SpriteFrame* spriteFrameByName(const std::string&name) { return getSpriteFrameByName(name); }
+    [[deprecated]] SpriteFrame* spriteFrameByName(const std::string&name) { return getSpriteFrameByName(name); }
 
     bool reloadTexture(const std::string& plist);
 

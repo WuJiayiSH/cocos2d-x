@@ -254,7 +254,7 @@ public:
      * @deprecated use `getLeftBoundary` instead.
      * @return The left boundary position of this widget.
      */
-    CC_DEPRECATED_ATTRIBUTE float getLeftInParent(){return this->getLeftBoundary();}
+    [[deprecated]] float getLeftInParent(){return this->getLeftBoundary();}
 
     /**
      * Gets the left boundary position of this widget in parent's coordination system.
@@ -267,7 +267,7 @@ public:
      * @deprecated use `getBottomBoundary` instead.
      * @return The bottom boundary position of this widget.
      */
-    CC_DEPRECATED_ATTRIBUTE float getBottomInParent(){return this->getBottomBoundary();}
+    [[deprecated]] float getBottomInParent(){return this->getBottomBoundary();}
     /**
      * Gets the bottom boundary position of this widget in parent's coordination system.
      * @return The bottom boundary position of this widget.
@@ -279,7 +279,7 @@ public:
      * @deprecated use `getRightBoundary` instead.
      * @return The right boundary position of this widget.
      */
-    CC_DEPRECATED_ATTRIBUTE float getRightInParent(){return this->getRightBoundary();}
+    [[deprecated]] float getRightInParent(){return this->getRightBoundary();}
     /**
      * Gets the right boundary position of this widget in parent's coordination system.
      * @return The right boundary position of this widget.
@@ -291,7 +291,7 @@ public:
      * @deprecated use `getTopBoundary` instead.
      * @return The top boundary position of this widget.
      */
-    CC_DEPRECATED_ATTRIBUTE float getTopInParent(){return this->getTopBoundary();}
+    [[deprecated]] float getTopInParent(){return this->getTopBoundary();}
     /**
      * Gets the top boundary position of this widget in parent's coordination system.
      * @return The top boundary position of this widget.
@@ -306,7 +306,7 @@ public:
     /**
      * Sets the touch event target/selector to the widget
      */
-    CC_DEPRECATED_ATTRIBUTE void addTouchEventListener(Ref* target,SEL_TouchEvent selector);
+    [[deprecated]] void addTouchEventListener(Ref* target,SEL_TouchEvent selector);
     /**
      * Set a callback to touch vent listener.
      *@param callback  The callback in `ccWidgetEventCallback.`
@@ -407,13 +407,13 @@ public:
     virtual bool isFlippedY()const{return _flippedY;};
 
     /** @deprecated Use isFlippedX() instead */
-    CC_DEPRECATED_ATTRIBUTE bool isFlipX() { return isFlippedX(); };
+    [[deprecated]] bool isFlipX() { return isFlippedX(); };
     /** @deprecated Use setFlippedX() instead */
-    CC_DEPRECATED_ATTRIBUTE void setFlipX(bool flipX) { setFlippedX(flipX); };
+    [[deprecated]] void setFlipX(bool flipX) { setFlippedX(flipX); };
     /** @deprecated Use isFlippedY() instead */
-    CC_DEPRECATED_ATTRIBUTE bool isFlipY() { return isFlippedY(); };
+    [[deprecated]] bool isFlipY() { return isFlippedY(); };
     /** @deprecated Use setFlippedY() instead */
-    CC_DEPRECATED_ATTRIBUTE void setFlipY(bool flipY) { setFlippedY(flipY); };
+    [[deprecated]] void setFlipY(bool flipY) { setFlippedY(flipY); };
 
     //override the setScale function of Node
     virtual void setScaleX(float scaleX) override;
@@ -433,7 +433,7 @@ public:
      * @deprecated  use `isClippingParentContainsPoint` instead.
      * @return true if the point is in parent's area, false otherwise.
      */
-    CC_DEPRECATED_ATTRIBUTE bool clippingParentAreaContainPoint(const Vec2 &pt){return this->isClippingParentContainsPoint(pt);}
+    [[deprecated]] bool clippingParentAreaContainPoint(const Vec2 &pt){return this->isClippingParentContainsPoint(pt);}
 
     /**
      * Checks a point if in parent's area.
@@ -448,7 +448,7 @@ public:
      * @deprecated use `getTouchBeganPosition` instead.
      * @return the touch began point.
      */
-    CC_DEPRECATED_ATTRIBUTE const Vec2& getTouchStartPos()const{return this->getTouchBeganPosition();}
+    [[deprecated]] const Vec2& getTouchStartPos()const{return this->getTouchBeganPosition();}
     /**
      * Gets the touch began point of widget when widget is selected.
      * @return the touch began point.
@@ -460,7 +460,7 @@ public:
      * @deprecated use `getTouchMovePosition` instead.
      * @return the touch move point.
      */
-    CC_DEPRECATED_ATTRIBUTE const Vec2& getTouchMovePos()const{ return this->getTouchMovePosition();}
+    [[deprecated]] const Vec2& getTouchMovePos()const{ return this->getTouchMovePosition();}
     /*
      * Gets the touch move point of widget when widget is selected.
      * @return the touch move point.
@@ -472,7 +472,7 @@ public:
      * @deprecated use `getTouchEndPosition` instead.
      * @return the touch end point.
      */
-    CC_DEPRECATED_ATTRIBUTE const Vec2& getTouchEndPos()const{return this->getTouchEndPosition();}
+    [[deprecated]] const Vec2& getTouchEndPos()const{return this->getTouchEndPosition();}
     /*
      * Gets the touch end point of widget when widget is selected.
      * @return the touch end point.
@@ -484,7 +484,7 @@ public:
      * @deprecated use `setContentSize` instead.
      * @param size that is widget's size
      */
-    CC_DEPRECATED_ATTRIBUTE virtual void setSize(const Size &size);
+    [[deprecated]] virtual void setSize(const Size &size);
     /**
      * Changes the size that is widget's size
      * @param contentSize A content size in `Size`.
@@ -519,7 +519,7 @@ public:
      *
      * @return Widget content size.
      */
-    CC_DEPRECATED_ATTRIBUTE const Size& getSize() const;
+    [[deprecated]] const Size& getSize() const;
     
     /**
      * Get the user defined widget size.
@@ -604,7 +604,7 @@ public:
      * @param type  Relative or Linear
      * @return LayoutParameter
      */
-    CC_DEPRECATED_ATTRIBUTE LayoutParameter* getLayoutParameter(LayoutParameter::Type type);
+    [[deprecated]] LayoutParameter* getLayoutParameter(LayoutParameter::Type type);
 
 
     /**
@@ -766,7 +766,7 @@ public:
      *                  otherwise, it will return a widget or a layout.
      * @deprecated use `getCurrentFocusedWidget` instead.
      */
-    CC_DEPRECATED_ATTRIBUTE Widget* getCurrentFocusedWidget(bool isWidget);
+    [[deprecated]] Widget* getCurrentFocusedWidget(bool isWidget);
 
     /**
      * Return a current focused widget in your UI scene.
@@ -925,7 +925,7 @@ protected:
     bool isAncestorsVisible(Node* node);
 
     /** @deprecated Use getAncestorWidget instead. */
-    CC_DEPRECATED_ATTRIBUTE Widget* getAncensterWidget(Node* node);
+    [[deprecated]] Widget* getAncensterWidget(Node* node);
 
     void cleanupWidget();
     LayoutComponent* getOrCreateLayoutComponent();

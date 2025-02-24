@@ -66,7 +66,7 @@ public:
      *
      * @return the instance of LuaEngine.
      */
-    CC_DEPRECATED_ATTRIBUTE static LuaEngine* defaultEngine() { return LuaEngine::getInstance(); }
+    [[deprecated]] static LuaEngine* defaultEngine() { return LuaEngine::getInstance(); }
     
     /** 
      * Destructor of LuaEngine.

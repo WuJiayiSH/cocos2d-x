@@ -453,7 +453,7 @@ tolua_lerror:
     return 0;
 }
 
-CC_DEPRECATED_ATTRIBUTE int lua_cocos2dx_DrawNode3D_setBlendFunc01(lua_State* L)
+[[deprecated]] int lua_cocos2dx_DrawNode3D_setBlendFunc01(lua_State* L)
 {
     int argc = 0;
     cocos2d::DrawNode3D* cobj = nullptr;

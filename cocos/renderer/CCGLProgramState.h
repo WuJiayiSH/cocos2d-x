@@ -108,7 +108,7 @@ public:
      @deprecated please use setTexture(Texture2D* texture, GLuint textureUnit) instead,
                  Passing a `textureId` may trigger texture lost issue (https://github.com/cocos2d/cocos2d-x/issues/16871).
     */
-    CC_DEPRECATED_ATTRIBUTE void setTexture(GLuint textureId, GLuint textureUnit);
+    [[deprecated]] void setTexture(GLuint textureId, GLuint textureUnit);
 
     /**
      Set texture to uniform value.
@@ -286,7 +286,7 @@ public:
 
     /** creates an instance of GLProgramState for given shaders */
     static GLProgramState* createWithShaders(const std::string& vertexShader, const std::string& fragShader, const std::string& compileTimeDefines);
-    CC_DEPRECATED_ATTRIBUTE static GLProgramState* getOrCreateWithShaders(const std::string& vertexShader, const std::string& fragShader, const std::string& compileTimeDefines)
+    [[deprecated]] static GLProgramState* getOrCreateWithShaders(const std::string& vertexShader, const std::string& fragShader, const std::string& compileTimeDefines)
     {
         return createWithShaders(vertexShader, fragShader, compileTimeDefines);
     }
@@ -357,7 +357,7 @@ public:
      * @deprecated, please use setUniformTexture(const std::string& uniformName, Texture2D *texture) instead,
      * Passing a `textureId` may trigger texture lost issue (https://github.com/cocos2d/cocos2d-x/issues/16871).
      */
-    CC_DEPRECATED_ATTRIBUTE void setUniformTexture(const std::string& uniformName, GLuint textureId);
+    [[deprecated]] void setUniformTexture(const std::string& uniformName, GLuint textureId);
     void setUniformTexturev(const std::string& uniformName, ssize_t size, const GLuint* pointer);
     /**@}*/
     
@@ -381,7 +381,7 @@ public:
      * @deprecated, please use setUniformTexture(GLint uniformLocation, Texture2D *texture) instead,
      * Passing a `textureId` may trigger texture lost issue (https://github.com/cocos2d/cocos2d-x/issues/16871).
      */
-    CC_DEPRECATED_ATTRIBUTE void setUniformTexture(GLint uniformLocation, GLuint textureId);
+    [[deprecated]] void setUniformTexture(GLint uniformLocation, GLuint textureId);
     void setUniformTexturev(GLint uniformLocation, ssize_t size, const GLuint* pointer);
     /**@}*/
 

@@ -119,7 +119,7 @@ public:
         bool getIntersectPoint(const Ray& ray, Vec3& intersectPoint) const;
 
         /** @deprecated Use getIntersectPoint instead. */
-        CC_DEPRECATED_ATTRIBUTE bool getInsterctPoint(const Ray& ray, Vec3& interScetPoint) const;
+        [[deprecated]] bool getInsterctPoint(const Ray& ray, Vec3& interScetPoint) const;
 
         void transform(const Mat4& matrix);
         Vec3 _p1, _p2, _p3;
@@ -240,7 +240,7 @@ private:
         bool getIntersectPointWithRay(const Ray& ray, Vec3& intersectPoint);
 
         /** @deprecated Use getIntersectPointWithRay instead. */
-        CC_DEPRECATED_ATTRIBUTE bool getInsterctPointWithRay(const Ray& ray, Vec3& intersectPoint);
+        [[deprecated]] bool getInsterctPointWithRay(const Ray& ray, Vec3& intersectPoint);
 
         /**current LOD of the chunk*/
         int _currentLod;

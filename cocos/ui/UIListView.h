@@ -429,7 +429,7 @@ public:
      *@param target A pointer of `Ref*` type.
      *@param selector A member function pointer with type of `SEL_ListViewEvent`.
      */
-    CC_DEPRECATED_ATTRIBUTE void addEventListenerListView(Ref* target, SEL_ListViewEvent selector);
+    [[deprecated]] void addEventListenerListView(Ref* target, SEL_ListViewEvent selector);
 
     /**
      * Add an event click callback to ListView, then one item of Listview is clicked, the callback will be called.
@@ -453,13 +453,13 @@ public:
      * This method will mark ListView content as dirty and the content view will be refreshed in the next frame.
      * @deprecated Use method requestDoLayout() instead
      */
-    CC_DEPRECATED_ATTRIBUTE void requestRefreshView();
+    [[deprecated]] void requestRefreshView();
 
     /**
      * @brief Refresh content view of ListView.
      * @deprecated Use method forceDoLayout() instead
      */
-    CC_DEPRECATED_ATTRIBUTE void refreshView();
+    [[deprecated]] void refreshView();
 
 CC_CONSTRUCTOR_ACCESS:
     virtual bool init() override;

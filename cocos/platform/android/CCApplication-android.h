@@ -66,7 +66,7 @@ public:
     static Application* getInstance();
 
     /** @deprecated Use getInstance() instead */
-    CC_DEPRECATED_ATTRIBUTE static Application* sharedApplication();
+    [[deprecated]] static Application* sharedApplication();
 
     /**
     @brief Get current language config

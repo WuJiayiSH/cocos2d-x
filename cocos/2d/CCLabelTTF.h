@@ -65,7 +65,7 @@ class Label;
  * @endcode
  *
  */
-class CC_DLL CC_DEPRECATED_ATTRIBUTE LabelTTF : public Node, public LabelProtocol, public BlendProtocol
+class CC_DLL [[deprecated]] LabelTTF : public Node, public LabelProtocol, public BlendProtocol
 {
 public:
     /**

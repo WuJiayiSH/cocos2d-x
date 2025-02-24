@@ -342,7 +342,7 @@ public:
      * @js NA
      * @lua NA
      */
-    CC_DEPRECATED_ATTRIBUTE static CallFunc * create(Ref* target, SEL_CallFunc selector);
+    [[deprecated]] static CallFunc * create(Ref* target, SEL_CallFunc selector);
 
 public:
     /** Executes the callback.
@@ -394,7 +394,7 @@ CC_CONSTRUCTOR_ACCESS:
      typedef void (Ref::*SEL_CallFunc)();
      @deprecated Use the std::function API instead.
      */
-    CC_DEPRECATED_ATTRIBUTE bool initWithTarget(Ref* target);
+    [[deprecated]] bool initWithTarget(Ref* target);
     
     /** initializes the action with the std::function<void()>
      * @lua NA
@@ -438,7 +438,7 @@ public:
     typedef void (Ref::*SEL_CallFuncN)(Node*);
      @deprecated Use the std::function API instead.
     */
-    CC_DEPRECATED_ATTRIBUTE static CallFuncN * create(Ref* target, SEL_CallFuncN selector);
+    [[deprecated]] static CallFuncN * create(Ref* target, SEL_CallFuncN selector);
 
     //
     // Overrides
@@ -458,7 +458,7 @@ CC_CONSTRUCTOR_ACCESS:
      typedef void (Ref::*SEL_CallFuncN)(Node*);
      @deprecated Use the std::function API instead.
      */
-    CC_DEPRECATED_ATTRIBUTE bool initWithTarget(Ref* target, SEL_CallFuncN selector);
+    [[deprecated]] bool initWithTarget(Ref* target, SEL_CallFuncN selector);
 
 protected:
     /** function that will be called with the "sender" as the 1st argument */
@@ -484,7 +484,7 @@ public:
      * @param d Data, is void* type.
      * @return An autoreleased __CCCallFuncND object.
      */
-    CC_DEPRECATED_ATTRIBUTE static __CCCallFuncND * create(Ref* target, SEL_CallFuncND selector, void* d);
+    [[deprecated]] static __CCCallFuncND * create(Ref* target, SEL_CallFuncND selector, void* d);
     
     //
     // Overrides
@@ -526,7 +526,7 @@ public:
      * @param object    An object as the callback's first argument.
      * @return An autoreleased __CCCallFuncO object.
      */
-    CC_DEPRECATED_ATTRIBUTE static __CCCallFuncO * create(Ref* target, SEL_CallFuncO selector, Ref* object);
+    [[deprecated]] static __CCCallFuncO * create(Ref* target, SEL_CallFuncO selector, Ref* object);
     //
     // Overrides
     //

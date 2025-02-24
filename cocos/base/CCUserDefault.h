@@ -239,11 +239,11 @@ public:
      * @js NA
      * @lua NA
      */
-    CC_DEPRECATED_ATTRIBUTE static UserDefault* sharedUserDefault();
+    [[deprecated]] static UserDefault* sharedUserDefault();
     /**@deprecated Use destroyInstance() instead.
      * @js NA
      */
-    CC_DEPRECATED_ATTRIBUTE static void purgeSharedUserDefault();
+    [[deprecated]] static void purgeSharedUserDefault();
     /** All supported platforms other iOS & Android use xml file to save values. This function is return the file path of the xml path.
      * @js NA
      */

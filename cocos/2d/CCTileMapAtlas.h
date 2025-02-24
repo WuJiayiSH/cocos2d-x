@@ -83,7 +83,7 @@ public:
      * Returns a tile from position x,y.
      *For the moment only channel R is used
      */
-    CC_DEPRECATED_ATTRIBUTE Color3B tileAt(const Vec2& position) const { return getTileAt(position); };
+    [[deprecated]] Color3B tileAt(const Vec2& position) const { return getTileAt(position); };
     /** sets a tile at position x,y.
     For the moment only channel R is used
     */

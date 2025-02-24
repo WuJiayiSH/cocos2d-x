@@ -907,14 +907,14 @@ public:
      * @lua NA
      * @js NA
      */
-    CC_DEPRECATED_ATTRIBUTE static ScriptEngineManager* sharedManager() { return ScriptEngineManager::getInstance(); };
+    [[deprecated]] static ScriptEngineManager* sharedManager() { return ScriptEngineManager::getInstance(); };
     /**
      * @deprecated Use destroyInstance() instead.
      *
      * @lua NA
      * @js NA
      */
-    CC_DEPRECATED_ATTRIBUTE static void purgeSharedManager() { ScriptEngineManager::destroyInstance(); };
+    [[deprecated]] static void purgeSharedManager() { ScriptEngineManager::destroyInstance(); };
     
 private:
     ScriptEngineManager()

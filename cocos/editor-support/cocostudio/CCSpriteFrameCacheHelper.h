@@ -46,7 +46,7 @@ class CC_STUDIO_DLL SpriteFrameCacheHelper
 {
 public:
     /** @deprecated Use getInstance() instead */
-    CC_DEPRECATED_ATTRIBUTE static SpriteFrameCacheHelper *sharedSpriteFrameCacheHelper(){ return SpriteFrameCacheHelper::getInstance(); }
+    [[deprecated]] static SpriteFrameCacheHelper *sharedSpriteFrameCacheHelper(){ return SpriteFrameCacheHelper::getInstance(); }
 
     static SpriteFrameCacheHelper *getInstance();
 

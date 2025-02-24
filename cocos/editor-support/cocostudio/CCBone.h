@@ -94,8 +94,8 @@ public:
 
     void removeDisplay(int index);
 
-    CC_DEPRECATED_ATTRIBUTE void changeDisplayByIndex(int index, bool force);
-    CC_DEPRECATED_ATTRIBUTE void changeDisplayByName(const std::string& name, bool force);
+    [[deprecated]] void changeDisplayByIndex(int index, bool force);
+    [[deprecated]] void changeDisplayByName(const std::string& name, bool force);
 
     void changeDisplayWithIndex(int index, bool force);
     void changeDisplayWithName(const std::string& name, bool force);
@@ -192,7 +192,7 @@ public:
      * This function is deprecated, please use isIgnoreMovementBoneData()
      * @lua NA
      */
-    CC_DEPRECATED_ATTRIBUTE virtual bool getIgnoreMovementBoneData() const { return isIgnoreMovementBoneData(); }
+    [[deprecated]] virtual bool getIgnoreMovementBoneData() const { return isIgnoreMovementBoneData(); }
 
     
     /*

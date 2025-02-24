@@ -112,11 +112,11 @@ public:
     void moveAnimationsFromNode(cocos2d::Node* fromNode, cocos2d::Node* toNode);
 
     /** @deprecated This interface will be deprecated sooner or later.*/
-    CC_DEPRECATED_ATTRIBUTE void runAnimations(const char *pName, float fTweenDuration);
+    [[deprecated]] void runAnimations(const char *pName, float fTweenDuration);
     /** @deprecated This interface will be deprecated sooner or later.*/
-    CC_DEPRECATED_ATTRIBUTE void runAnimations(const char *pName);
+    [[deprecated]] void runAnimations(const char *pName);
     /** @deprecated This interface will be deprecated sooner or later.*/
-    CC_DEPRECATED_ATTRIBUTE void runAnimations(int nSeqId, float fTweenDuraiton);
+    [[deprecated]] void runAnimations(int nSeqId, float fTweenDuraiton);
 
     void runAnimationsForSequenceNamedTweenDuration(const char *pName, float fTweenDuration);
     void runAnimationsForSequenceNamed(const char *pName);

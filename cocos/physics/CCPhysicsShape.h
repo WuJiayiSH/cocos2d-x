@@ -276,7 +276,7 @@ public:
     static Vec2 getPolygonCenter(const Vec2* points, int count);
 
     /** @deprecated use getPolygonCenter() instead */
-    CC_DEPRECATED_ATTRIBUTE static Vec2 getPolyonCenter(const Vec2* points, int count);
+    [[deprecated]] static Vec2 getPolyonCenter(const Vec2* points, int count);
     
     /**
      * Set a mask that defines which categories this physics body belongs to.

@@ -44,7 +44,7 @@ public:
 
     virtual int* getHorizontalKerningForTextUTF32(const std::u32string& text, int &outNumLetters) const = 0;
     
-    CC_DEPRECATED_ATTRIBUTE inline int* getHorizontalKerningForTextUTF16(const std::u16string& text, int &outNumLetters) const
+    [[deprecated]] inline int* getHorizontalKerningForTextUTF16(const std::u16string& text, int &outNumLetters) const
     {
         std::u32string utf32;
         StringUtils::UTF16ToUTF32(text, utf32);

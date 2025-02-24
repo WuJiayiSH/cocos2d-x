@@ -149,7 +149,7 @@ public:
      */
     Image* newImage(bool flipImage = true);
     
-    CC_DEPRECATED_ATTRIBUTE Image* newCCImage(bool flipImage = true) { return newImage(flipImage); };
+    [[deprecated]] Image* newCCImage(bool flipImage = true) { return newImage(flipImage); };
 
     /** Saves the texture into a file using JPEG format. The file will be saved in the Documents folder.
      * Returns true if the operation is successful.

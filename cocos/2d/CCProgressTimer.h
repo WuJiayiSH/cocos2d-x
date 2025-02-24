@@ -117,7 +117,7 @@ public:
      * @lua setReverseDirection
      * @param reverse If reverse is false it will clockwise,if is true it will Anti-clockwise.
      */
-    CC_DEPRECATED_ATTRIBUTE void setReverseProgress(bool reverse) { setReverseDirection(reverse); }
+    [[deprecated]] void setReverseProgress(bool reverse) { setReverseDirection(reverse); }
 
 
     /**

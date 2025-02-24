@@ -30,12 +30,8 @@ THE SOFTWARE.
 
 #include "audio/include/Export.h"
 
-#if defined(__GNUC__) && ((__GNUC__ >= 4) || ((__GNUC__ == 3) && (__GNUC_MINOR__ >= 1)))
-#define CC_DEPRECATED_ATTRIBUTE __attribute__((deprecated))
-#elif _MSC_VER >= 1400 //vs 2005 or higher
-#define CC_DEPRECATED_ATTRIBUTE __declspec(deprecated)
-#else
-#define CC_DEPRECATED_ATTRIBUTE
+#if !defined(CC_DEPRECATED_ATTRIBUTE)
+#define CC_DEPRECATED_ATTRIBUTE [[deprecated]]
 #endif
 
 /**
@@ -68,7 +64,7 @@ public:
      * @js NA
      * @lua NA
      */
-    CC_DEPRECATED_ATTRIBUTE static SimpleAudioEngine* sharedEngine() { return SimpleAudioEngine::getInstance(); }
+    [[deprecated]] static SimpleAudioEngine* sharedEngine() { return SimpleAudioEngine::getInstance(); }
 
     /**
      * Release the shared Engine object.

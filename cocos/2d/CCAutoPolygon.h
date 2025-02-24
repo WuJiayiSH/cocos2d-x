@@ -111,7 +111,7 @@ public:
     unsigned int getTrianglesCount() const;
 
     /** @deprecated Use method getTrianglesCount() instead */
-    CC_DEPRECATED_ATTRIBUTE unsigned int getTriaglesCount() const;
+    [[deprecated]] unsigned int getTriaglesCount() const;
     
     /**
      * get sum of all triangle area size

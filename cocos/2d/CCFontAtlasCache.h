@@ -46,7 +46,7 @@ public:
     static FontAtlas* getFontAtlasFNT(const std::string& fontFileName);
     static FontAtlas* getFontAtlasFNT(const std::string& fontFileName, const std::string& subTextureKey);
     static FontAtlas* getFontAtlasFNT(const std::string& fontFileName, const Rect& imageRect, bool imageRotated);
-    CC_DEPRECATED_ATTRIBUTE static FontAtlas* getFontAtlasFNT(const std::string& fontFileName, const Vec2& imageOffset);
+    [[deprecated]] static FontAtlas* getFontAtlasFNT(const std::string& fontFileName, const Vec2& imageOffset);
 
     static FontAtlas* getFontAtlasCharMap(const std::string& charMapFile, int itemWidth, int itemHeight, int startCharMap);
     static FontAtlas* getFontAtlasCharMap(Texture2D* texture, int itemWidth, int itemHeight, int startCharMap);
@@ -65,7 +65,7 @@ public:
     */
     static void reloadFontAtlasFNT(const std::string& fontFileName, const Rect& imageRect, bool imageRotated);
 
-    CC_DEPRECATED_ATTRIBUTE static void reloadFontAtlasFNT(const std::string& fontFileName, const Vec2& imageOffset = Vec2::ZERO);
+    [[deprecated]] static void reloadFontAtlasFNT(const std::string& fontFileName, const Vec2& imageOffset = Vec2::ZERO);
 
     /** Unload all texture atlas texture create by special file name.
      CAUTION : All component use this font texture should be reset font name, though the file name is same!

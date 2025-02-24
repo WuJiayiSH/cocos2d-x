@@ -133,7 +133,7 @@ public:
     
     virtual GLuint getBuffer() const { return _depthStencilBuffer; }
     
-    CC_DEPRECATED(3.7) GLuint getDepthStencilBuffer() const { return _depthStencilBuffer; }
+    [[deprecated("Use getBuffer() instead")]] GLuint getDepthStencilBuffer() const { return _depthStencilBuffer; }
 CC_CONSTRUCTOR_ACCESS:
     RenderTargetDepthStencil();
     virtual ~RenderTargetDepthStencil();

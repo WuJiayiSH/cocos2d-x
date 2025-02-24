@@ -47,7 +47,7 @@ namespace cocostudio
         
         static Light3DReader* getInstance();
         /** @deprecated Use method destroyInstance() instead */
-        CC_DEPRECATED_ATTRIBUTE static void purge();
+        [[deprecated]] static void purge();
         static void destroyInstance();
         
         flatbuffers::Offset<flatbuffers::Table> createOptionsWithFlatBuffers(const tinyxml2::XMLElement* objectData,

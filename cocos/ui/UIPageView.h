@@ -125,7 +125,7 @@ public:
      *
      * Since v3.9, this is deprecated. Use `insertPage(Widget* page, int idx)` instead.
      */
-    CC_DEPRECATED_ATTRIBUTE void addWidgetToPage(Widget* widget, ssize_t pageIdx, bool forceCreate);
+    [[deprecated]] void addWidgetToPage(Widget* widget, ssize_t pageIdx, bool forceCreate);
     
     /**
      * Insert a page into the end of PageView.
@@ -197,7 +197,7 @@ public:
      *
      * Since v3.9, this is deprecated. Use `getCurrentPageIndex()` instead.
      */
-    CC_DEPRECATED_ATTRIBUTE ssize_t getCurPageIndex() const;
+    [[deprecated]] ssize_t getCurPageIndex() const;
 
     /**
      * Gets current displayed page index.
@@ -213,7 +213,7 @@ public:
      *
      * Since v3.9, this is deprecated. Use `setCurrentPageIndex()` instead.
      */
-    CC_DEPRECATED_ATTRIBUTE void setCurPageIndex(ssize_t index);
+    [[deprecated]] void setCurPageIndex(ssize_t index);
 
     /**
      * Jump to a page with a given index without scrolling.
@@ -229,7 +229,7 @@ public:
      *
      * Since v3.9, this is obsolete. Use `Vector<Widget*>& ListView::getItems()` instead.
      */
-    CC_DEPRECATED_ATTRIBUTE Vector<Layout*>& getPages();
+    [[deprecated]] Vector<Layout*>& getPages();
 
     /**
      * @brief Get a page at a given index
@@ -239,7 +239,7 @@ public:
      *
      * Since v3.9, this is obsolete. Use `Widget* ListView::getItem(index)` instead.
      */
-    CC_DEPRECATED_ATTRIBUTE Layout* getPage(ssize_t index);
+    [[deprecated]] Layout* getPage(ssize_t index);
     
     /**
      * Add a page turn callback to PageView, then when one page is turning, the callback will be called.
@@ -247,7 +247,7 @@ public:
      *@param target A pointer of `Ref*` type.
      *@param selector A member function pointer with signature of `SEL_PageViewEvent`.
      */
-    CC_DEPRECATED_ATTRIBUTE void addEventListenerPageView(Ref *target, SEL_PageViewEvent selector);
+    [[deprecated]] void addEventListenerPageView(Ref *target, SEL_PageViewEvent selector);
 
     /**
      * @brief Add a page turn callback to PageView, then when one page is turning, the callback will be called.
@@ -398,14 +398,14 @@ public:
      *@param threshold  A threshold in float.
      *@deprecated Since v3.9, this method has no effect.
      */
-    CC_DEPRECATED_ATTRIBUTE void setCustomScrollThreshold(float threshold);
+    [[deprecated]] void setCustomScrollThreshold(float threshold);
 
     /**
      *@brief Query the custom scroll threshold of the PageView.
      *@return Custom scroll threshold in float.
      *@deprecated Since v3.9, this method always returns 0.
      */
-    CC_DEPRECATED_ATTRIBUTE float getCustomScrollThreshold()const;
+    [[deprecated]] float getCustomScrollThreshold()const;
 
     /**
      *@brief Set using user defined scroll page threshold or not.
@@ -413,14 +413,14 @@ public:
      *@param flag True if using custom scroll threshold, false otherwise.
      *@deprecated Since v3.9, this method has no effect.
      */
-    CC_DEPRECATED_ATTRIBUTE void setUsingCustomScrollThreshold(bool flag);
+    [[deprecated]] void setUsingCustomScrollThreshold(bool flag);
 
     /**
      *@brief Query whether use user defined scroll page threshold or not.
      *@return True if using custom scroll threshold, false otherwise.
      *@deprecated Since v3.9, this method always returns false.
      */
-    CC_DEPRECATED_ATTRIBUTE bool isUsingCustomScrollThreshold()const;
+    [[deprecated]] bool isUsingCustomScrollThreshold()const;
 
     void setAutoScrollStopEpsilon(float epsilon);
 

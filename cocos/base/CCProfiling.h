@@ -80,7 +80,7 @@ public:
      * @js NA
      * @lua NA
      */
-    CC_DEPRECATED_ATTRIBUTE static Profiler* sharedProfiler();
+    [[deprecated]] static Profiler* sharedProfiler();
 
     /** Creates and adds a new timer 
      * @js NA

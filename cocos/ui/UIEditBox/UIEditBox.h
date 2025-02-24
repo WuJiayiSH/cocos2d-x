@@ -77,7 +77,7 @@ namespace ui {
          * @param editBox The edit box object that generated the event.
          * @deprecated Use editBoxEditingDidEndWithAction() instead to receive reason for end
          */
-        CC_DEPRECATED_ATTRIBUTE virtual void editBoxEditingDidEnd(EditBox* /*editBox*/) {}
+        [[deprecated]] virtual void editBoxEditingDidEnd(EditBox* /*editBox*/) {}
 
         /**
          * This method is called when the edit box text was changed.
@@ -660,7 +660,7 @@ namespace ui {
          * @lua NA
          * @deprecated Use openKeyboard() instead to open the keyboard
          */
-        CC_DEPRECATED_ATTRIBUTE
+        [[deprecated]]
         void touchDownAction(Ref *sender, TouchEventType controlEvent);
 
         void openKeyboard() const;

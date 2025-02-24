@@ -355,7 +355,7 @@ namespace ui {
          * @param capInsets The values to use for the cap insets.
          * @return True if initializes success, false otherwise.
          */
-        CC_DEPRECATED(v3) virtual bool initWithBatchNode(SpriteBatchNode* batchnode,
+        [[deprecated("Use init() instead")]] virtual bool initWithBatchNode(SpriteBatchNode* batchnode,
                                                          const Rect& rect,
                                                          bool rotated,
                                                          const Rect& capInsets);
@@ -371,7 +371,7 @@ namespace ui {
          * @param capInsets The values to use for the cap insets.
          * @return True if initializes success, false otherwise.
          */
-        CC_DEPRECATED(v3) virtual bool initWithBatchNode(SpriteBatchNode* batchnode, const Rect& rect, const Rect& capInsets);
+        [[deprecated("Use init() instead")]] virtual bool initWithBatchNode(SpriteBatchNode* batchnode, const Rect& rect, const Rect& capInsets);
 
         /**
          * Creates and returns a new sprite object with the specified cap insets.
@@ -429,10 +429,10 @@ namespace ui {
          * @param capInsets The Values to use for the cap insets.
          * @return True if update success, false otherwise.
          */
-        CC_DEPRECATED(v3) bool updateWithBatchNode(SpriteBatchNode* batchnode,
-                                                   const Rect& originalRect,
-                                                   bool rotated,
-                                                   const Rect& capInsets);
+        [[deprecated("Use updateWithSprite() instead")]] bool updateWithBatchNode(SpriteBatchNode* batchnode,
+                                                                                  const Rect& originalRect,
+                                                                                  bool rotated,
+                                                                                  const Rect& capInsets);
 
 
         /**

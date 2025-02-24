@@ -3602,7 +3602,7 @@ tolua_lerror:
 }
 extern int lua_cocos2dx_Sprite_setBlendFunc(lua_State* tolua_S);
 
-CC_DEPRECATED_ATTRIBUTE static int tolua_cocos2dx_Sprite_setBlendFunc01(lua_State* tolua_S)
+[[deprecated]] static int tolua_cocos2dx_Sprite_setBlendFunc01(lua_State* tolua_S)
 {
     int argc = lua_gettop(tolua_S) - 1;
     if (argc == 2)
@@ -3615,7 +3615,7 @@ CC_DEPRECATED_ATTRIBUTE static int tolua_cocos2dx_Sprite_setBlendFunc01(lua_Stat
 
 extern int lua_cocos2dx_SpriteBatchNode_setBlendFunc(lua_State* tolua_S);
 
-CC_DEPRECATED_ATTRIBUTE static int tolua_cocos2dx_SpriteBatchNode_setBlendFunc01(lua_State* tolua_S)
+[[deprecated]] static int tolua_cocos2dx_SpriteBatchNode_setBlendFunc01(lua_State* tolua_S)
 {
     int argc = lua_gettop(tolua_S) - 1;
     if (argc == 2)
@@ -3628,7 +3628,7 @@ CC_DEPRECATED_ATTRIBUTE static int tolua_cocos2dx_SpriteBatchNode_setBlendFunc01
 
 extern int lua_cocos2dx_MotionStreak_setBlendFunc(lua_State* tolua_S);
 
-CC_DEPRECATED_ATTRIBUTE static int tolua_cocos2dx_MotionStreak_setBlendFunc01(lua_State* tolua_S)
+[[deprecated]] static int tolua_cocos2dx_MotionStreak_setBlendFunc01(lua_State* tolua_S)
 {
     int argc = lua_gettop(tolua_S) - 1;
     if (argc == 2)
@@ -3641,7 +3641,7 @@ CC_DEPRECATED_ATTRIBUTE static int tolua_cocos2dx_MotionStreak_setBlendFunc01(lu
 
 extern int lua_cocos2dx_AtlasNode_setBlendFunc(lua_State* tolua_S);
 
-CC_DEPRECATED_ATTRIBUTE static int tolua_cocos2dx_AtlasNode_setBlendFunc01(lua_State* tolua_S)
+[[deprecated]] static int tolua_cocos2dx_AtlasNode_setBlendFunc01(lua_State* tolua_S)
 {
     int argc = lua_gettop(tolua_S) - 1;
     if (argc == 2)
@@ -3654,7 +3654,7 @@ CC_DEPRECATED_ATTRIBUTE static int tolua_cocos2dx_AtlasNode_setBlendFunc01(lua_S
 
 extern int lua_cocos2dx_ParticleBatchNode_setBlendFunc(lua_State* tolua_S);
 
-CC_DEPRECATED_ATTRIBUTE static int tolua_cocos2dx_ParticleBatchNode_setBlendFunc01(lua_State* tolua_S)
+[[deprecated]] static int tolua_cocos2dx_ParticleBatchNode_setBlendFunc01(lua_State* tolua_S)
 {
     int argc = lua_gettop(tolua_S) - 1;
     if (argc == 2)
@@ -3667,7 +3667,7 @@ CC_DEPRECATED_ATTRIBUTE static int tolua_cocos2dx_ParticleBatchNode_setBlendFunc
 
 extern int lua_cocos2dx_LayerColor_setBlendFunc(lua_State* tolua_S);
 
-CC_DEPRECATED_ATTRIBUTE static int tolua_cocos2dx_LayerColor_setBlendFunc01(lua_State* tolua_S)
+[[deprecated]] static int tolua_cocos2dx_LayerColor_setBlendFunc01(lua_State* tolua_S)
 {
     int argc = lua_gettop(tolua_S) - 1;
     if (argc == 2)
@@ -3680,7 +3680,7 @@ CC_DEPRECATED_ATTRIBUTE static int tolua_cocos2dx_LayerColor_setBlendFunc01(lua_
 
 extern int lua_cocos2dx_ParticleSystem_setBlendFunc(lua_State* tolua_S);
 
-CC_DEPRECATED_ATTRIBUTE static int tolua_cocos2dx_ParticleSystem_setBlendFunc01(lua_State* tolua_S)
+[[deprecated]] static int tolua_cocos2dx_ParticleSystem_setBlendFunc01(lua_State* tolua_S)
 {
     int argc = lua_gettop(tolua_S) - 1;
     if (argc == 2)
@@ -3693,7 +3693,7 @@ CC_DEPRECATED_ATTRIBUTE static int tolua_cocos2dx_ParticleSystem_setBlendFunc01(
 
 extern int lua_cocos2dx_DrawNode_setBlendFunc(lua_State* tolua_S);
 
-CC_DEPRECATED_ATTRIBUTE static int tolua_cocos2dx_DrawNode_setBlendFunc01(lua_State* tolua_S)
+[[deprecated]] static int tolua_cocos2dx_DrawNode_setBlendFunc01(lua_State* tolua_S)
 {
     int argc = lua_gettop(tolua_S) - 1;
     if (argc == 2)

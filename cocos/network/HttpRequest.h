@@ -244,7 +244,7 @@ public:
      * @param pTarget the target object pointer.
      * @param pSelector the callback function.
      */
-    CC_DEPRECATED_ATTRIBUTE void setResponseCallback(Ref* pTarget, SEL_CallFuncND pSelector)
+    [[deprecated]] void setResponseCallback(Ref* pTarget, SEL_CallFuncND pSelector)
     {
         doSetResponseCallback(pTarget, (SEL_HttpResponse)pSelector);
     }
@@ -294,7 +294,7 @@ public:
         /** Destructor. */
         ~_prxy(){};
         operator SEL_HttpResponse() const { return _cb; }
-        CC_DEPRECATED_ATTRIBUTE operator SEL_CallFuncND()   const { return (SEL_CallFuncND) _cb; }
+        [[deprecated]] operator SEL_CallFuncND()   const { return (SEL_CallFuncND) _cb; }
     protected:
         SEL_HttpResponse _cb;
     };

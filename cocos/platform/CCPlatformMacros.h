@@ -63,7 +63,7 @@ static __TYPE__* create() \
  * @deprecated  This interface will be deprecated sooner or later.
  */
 #define NODE_FUNC(__TYPE__) \
-CC_DEPRECATED_ATTRIBUTE static __TYPE__* node() \
+[[deprecated]] static __TYPE__* node() \
 { \
     __TYPE__ *pRet = new(std::nothrow) __TYPE__(); \
     if (pRet && pRet->init()) \
@@ -268,22 +268,17 @@ private: varType varName; public: virtual inline varType get##funName() const { 
     CC_DISALLOW_COPY_AND_ASSIGN(TypeName)
 
 /** @def CC_DEPRECATED_ATTRIBUTE
- * Only certain compilers support __attribute__((deprecated)).
+ * @deprecated Use [[deprecated]] instead.
  */
-#if defined(__GNUC__) && ((__GNUC__ >= 4) || ((__GNUC__ == 3) && (__GNUC_MINOR__ >= 1)))
-    #define CC_DEPRECATED_ATTRIBUTE __attribute__((deprecated))
-#elif _MSC_VER >= 1400 //vs 2005 or higher
-    #define CC_DEPRECATED_ATTRIBUTE __declspec(deprecated) 
-#else
-    #define CC_DEPRECATED_ATTRIBUTE
-#endif 
+#define CC_DEPRECATED_ATTRIBUTE [[deprecated]]
 
 /** @def CC_DEPRECATED(...)
  * Macro to mark things deprecated as of a particular version
  * can be used with arbitrary parameters which are thrown away.
  * e.g. CC_DEPRECATED(4.0) or CC_DEPRECATED(4.0, "not going to need this anymore") etc.
+ * @deprecated Use [[deprecated("message")]] instead.
  */
-#define CC_DEPRECATED(...) CC_DEPRECATED_ATTRIBUTE
+#define CC_DEPRECATED(...) [[deprecated]]
 
 /** @def CC_DISABLE_WARN_DEPRECATED_BEGIN
  * Disable deprecated warn until next CC_DISABLE_WARN_DEPRECATED_END
