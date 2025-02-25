@@ -682,6 +682,58 @@ class SetEnvVar(object):
         else:
             return SetEnvVar.RESULT_DO_NOTHING
 
+    def install_deps_linux(self):
+        if not self._isLinux():
+            return
+        
+        dependencies = [
+            "libx11-dev",
+            "libxmu-dev",
+            "libglu1-mesa-dev",
+            "libgl2ps-dev",
+            "libxi-dev",
+            "libzip-dev",
+            "libpng-dev",
+            "libcurl4-gnutls-dev",
+            "libfontconfig1-dev",
+            "libsqlite3-dev",
+            "libglew-dev",
+            "libssl-dev",
+            "libgtk-3-dev",
+            "binutils"
+        ]
+
+        print("->Install dependencies for Linux platform: %s" % (", ".join(dependencies)))
+
+        try:
+            subprocess.check_call(['which', 'apt-get'])
+        except Exception:
+            print("    ->apt-get not found, please install dependencies manually\n")
+            return
+
+        if sys.version_info[0] > 2:
+            ret = input("->Do you want to install the above dependencies? (Y/n):")
+        else:
+            ret = raw_input("->Do you want to install the above dependencies? (Y/n):")
+        ret.rstrip(" \t")
+
+        if ret != "Y" and ret != "y":
+            return
+
+        if os.system("sudo apt-get update") != 0:
+            print("    ->Failed to update apt-get\n")
+            return
+
+        if os.system("sudo dpkg --add-architecture i386") != 0:
+            print("    ->Failed to add i386 architecture\n")
+            return
+
+        if os.system("sudo apt-get install --force-yes --yes %s > /dev/null" % (" ".join(dependencies))) != 0:
+            print("    ->Failed to install dependencies\n")
+            return
+            
+        print("    ->Succeed to install dependencies\n")
+
     def set_environment_variables(self, ndk_root, android_sdk_root, emsdk_root, quiet):
 
         print('\nSetting up cocos2d-x...')
@@ -701,7 +753,13 @@ class SetEnvVar(object):
         if(quiet) :
             ndk_ret = self.set_variable(NDK_ROOT, ndk_root)
             sdk_ret = self.set_variable(ANDROID_SDK_ROOT, android_sdk_root)
+
+        print('->Configuration for Emscripten platform only, you can also skip and manually edit your environment variables\n')
+        if(quiet) :
             emsdk_ret = self.set_variable(EMSDK_ROOT, emsdk_root)
+
+        if(quiet) :
+            self.install_deps_linux()
 
         # tip the backup file
         if (self.backup_file is not None) and (os.path.exists(self.backup_file)):
