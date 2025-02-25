@@ -606,7 +606,7 @@ class SetEnvVar(object):
         ret = None
         print("  ->Search for command " + cmd + " in system...")
         if not self._isWindows():
-            import commands
+            commands = __import__('subprocess' if sys.version_info[0] > 2 else 'commands') 
             state, result = commands.getstatusoutput("which " + cmd)
             if state == 0:
                 ret = os.path.realpath(result)
