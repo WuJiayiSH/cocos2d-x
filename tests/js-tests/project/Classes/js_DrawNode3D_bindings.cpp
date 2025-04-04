@@ -250,6 +250,10 @@ void DrawNode3D::onDraw(const Mat4 &transform, uint32_t flags)
 
     glDrawArrays(GL_LINES, 0, _bufferCount);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
+    if (Configuration::getInstance()->supportsShareableVAO())
+    {
+        GL::bindVAO(0);
+    }
 
     CC_INCREMENT_GL_DRAWN_BATCHES_AND_VERTICES(1,_bufferCount);
     glDisable(GL_DEPTH_TEST);
