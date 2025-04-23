@@ -42,6 +42,11 @@ public:
 
     ~WeakPtr()
     {
+        // NOTE: We can ensure T is derived from cocos2d::Ref at compile time here.
+        // The assertion must be inside destructor other than the class body
+        // to allow class T holding a WeakPtr<T>, e.g.
+        // class T : public cocos2d::Ref {cocos2d::WeakPtr<T> _member;};
+		static_assert(std::is_base_of<Ref, typename std::remove_const<T>::type>::value, "T must be derived from Ref");
 		CC_SAFE_RELEASE(_counter);
     }
 
@@ -177,12 +182,6 @@ public:
 
 private:
 	Ref::WeakPtrCounter* _counter;
-
-    /*
-    Note: Removed the following assertion because it blocks class T from holding a WeakPtr<T>, e.g.
-    class T : public cocos2d::Ref {cocos2d::WeakPtr<T> _member;}; // does not compile
-    */
-    // static_assert(std::is_base_of<Ref, typename std::remove_const<T>::type>::value, "T must be derived from Ref");
 };
 
 template <class T> inline
