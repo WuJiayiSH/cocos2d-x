@@ -79,6 +79,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
     # Force MSVC to compile with utf-8 so it doesn't emit C4819
     add_compile_options("$<$<C_COMPILER_ID:MSVC>:/utf-8>")
     add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/utf-8>")
+
+    if(USE_ASAN)
+        add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/fsanitize=address>")
+    endif()
 endif()
 
  # Set macro definitions for special platforms
