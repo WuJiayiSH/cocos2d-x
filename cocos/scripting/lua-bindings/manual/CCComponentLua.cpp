@@ -32,11 +32,17 @@
 
 NS_CC_BEGIN
 
-const std::string ComponentLua::ON_ENTER = "onEnter";
-const std::string ComponentLua::ON_EXIT = "onExit";
-const std::string ComponentLua::UPDATE = "update";
+namespace {
+    const std::string ON_ENTER = "onEnter";
+    const std::string ON_EXIT = "onExit";
+    const std::string UPDATE = "update";
+    
+    const char* const KEY_COMPONENT = "component";
 
-#define KEY_COMPONENT  "component"
+    // the index used to get lua table, it is unique for every component
+    int s_index = 0;
+}
+
 
 namespace {
     void adjustScriptFileName(std::string& scriptFileName)
@@ -59,16 +65,10 @@ namespace {
     }
 }
 
-int ComponentLua::_index = 0;
-
-ComponentLua* ComponentLua::create(const std::string& scriptFileName)
+ComponentLua* ComponentLua::create()
 {
-    CC_ASSERT(!scriptFileName.empty());
-    
     initClass();
-    
-    adjustScriptFileName(const_cast<std::string&>(scriptFileName));
-    auto componentLua = new(std::nothrow) ComponentLua(scriptFileName);
+    auto componentLua = new(std::nothrow) ComponentLua();
     if (componentLua)
     {
         componentLua->autorelease();
@@ -77,10 +77,32 @@ ComponentLua* ComponentLua::create(const std::string& scriptFileName)
     return componentLua;
 }
 
-ComponentLua::ComponentLua(const std::string& scriptFileName)
+ComponentLua* ComponentLua::create(std::string_view scriptFileName)
+{
+    CC_ASSERT(!scriptFileName.empty());
+    
+    initClass();
+
+    std::string outFilename(scriptFileName);
+    adjustScriptFileName(outFilename);
+    auto componentLua = new(std::nothrow) ComponentLua(outFilename);
+    if (componentLua)
+    {
+        componentLua->autorelease();
+    }
+    
+    return componentLua;
+}
+
+ComponentLua::ComponentLua()
+: _table(nullptr)
+, _succeedLoadingScript(false)
+{
+}
+
+ComponentLua::ComponentLua(std::string_view scriptFileName)
 : _scriptFileName(scriptFileName)
 , _table(nullptr)
-, _strIndex("")
 {
     _succeedLoadingScript = loadAndExecuteScript();
 }
@@ -88,6 +110,13 @@ ComponentLua::ComponentLua(const std::string& scriptFileName)
 ComponentLua::~ComponentLua()
 {
     removeLuaTable();
+}
+
+bool ComponentLua::loadAndExecuteScript(std::string_view scriptFileName)
+{
+    _scriptFileName = scriptFileName;
+    _succeedLoadingScript = loadAndExecuteScript();
+    return _succeedLoadingScript;
 }
 
 void ComponentLua::getScriptObjectInternal() const
@@ -107,7 +136,7 @@ void* ComponentLua::getScriptObject() const
 
 void ComponentLua::update(float delta)
 {
-    if (_succeedLoadingScript && getLuaFunction(ComponentLua::UPDATE))
+    if (_succeedLoadingScript && getLuaFunction(UPDATE))
     {
         getUserData();
         lua_State *l = LuaEngine::getInstance()->getLuaStack()->getLuaState();
@@ -118,7 +147,7 @@ void ComponentLua::update(float delta)
 
 void ComponentLua::onEnter()
 {
-    if (_succeedLoadingScript && getLuaFunction(ComponentLua::ON_ENTER))
+    if (_succeedLoadingScript && getLuaFunction(ON_ENTER))
     {
         getUserData();
         LuaEngine::getInstance()->getLuaStack()->executeFunction(1);
@@ -127,7 +156,7 @@ void ComponentLua::onEnter()
 
 void ComponentLua::onExit()
 {
-    if (_succeedLoadingScript && getLuaFunction(ComponentLua::ON_EXIT))
+    if (_succeedLoadingScript && getLuaFunction(ON_EXIT))
     {
         getUserData();
         LuaEngine::getInstance()->getLuaStack()->executeFunction(1);
@@ -223,8 +252,8 @@ void ComponentLua::storeLuaTable()
 {
     lua_State *l = LuaEngine::getInstance()->getLuaStack()->getLuaState();
     
-    _index++;
-    _strIndex.append(StringUtils::toString(_index));
+    s_index++;
+    _strIndex.append(StringUtils::toString(s_index));
     
     // LUA_REGISTRYINDEX["component"][strIndex] = table return from lua
     lua_pushstring(l, KEY_COMPONENT);          // stack: table_return_from_lua "component"

@@ -26,6 +26,7 @@
 #pragma once
 
 #include <string>
+#include <string_view>
 #include <unordered_map>
 #include "2d/CCComponent.h"
 
@@ -40,9 +41,14 @@ NS_CC_BEGIN
 class ComponentLua : public Component
 {
 public:
-    static ComponentLua* create(const std::string& scriptFileName);
-    
-    ComponentLua(const std::string& scriptFileName);
+    static ComponentLua* create();
+    static ComponentLua* create(std::string_view scriptFileName);
+
+    ComponentLua();
+    ComponentLua(std::string_view scriptFileName);
+
+    bool loadAndExecuteScript(std::string_view scriptFileName);
+
     /**
      * This function is used to be invoked from lua side to get the corresponding script object of this component.
      */
@@ -73,13 +79,6 @@ private:
     
     // string value of index
     std::string _strIndex;
-    
-    // the index used to get lua table, it is unique for every component
-    static int _index;
-    
-    static const std::string ON_ENTER;
-    static const std::string ON_EXIT;
-    static const std::string UPDATE;
 };
 
 NS_CC_END
