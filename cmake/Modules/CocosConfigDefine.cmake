@@ -83,6 +83,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
     if(USE_ASAN)
         add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/fsanitize=address>")
     endif()
+    add_compile_options("$<$<CONFIG:Debug,RelWithDebInfo>:/Z7>")
 endif()
 
  # Set macro definitions for special platforms
