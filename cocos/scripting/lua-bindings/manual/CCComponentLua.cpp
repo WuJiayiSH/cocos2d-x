@@ -114,6 +114,8 @@ ComponentLua::~ComponentLua()
 
 bool ComponentLua::loadAndExecuteScript(std::string_view scriptFileName)
 {
+    removeLuaTable();
+
     _scriptFileName = scriptFileName;
     _succeedLoadingScript = loadAndExecuteScript();
     return _succeedLoadingScript;
