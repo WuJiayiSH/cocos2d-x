@@ -54,6 +54,7 @@ THE SOFTWARE.
 #include "base/CCRef.h"
 #include "base/CCRefPtr.h"
 #include "base/CCWeakPtr.h"
+#include "base/CCSingleton.h"
 #include "base/CCScheduler.h"
 #include "base/CCUserDefault.h"
 #include "base/CCValue.h"
