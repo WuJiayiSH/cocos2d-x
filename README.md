@@ -68,8 +68,7 @@ Backlogs:
 5. Investigate getDuration, getCurrentTime, setCurrentTime in AudioEngine
 6. Response header in HttpResponse is missing
 
-<img src="http://www.cocos2d-x.org/attachments/801/cocos2dx_portrait.png" width=200>
-
+![](docs/cocos2dx_imgui_editor.png "")
 
 cocos2d-x
 =========
