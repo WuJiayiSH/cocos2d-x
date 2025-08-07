@@ -31,6 +31,7 @@
 #define __CCNODE_H__
 
 #include <cstdint>
+#include <vector>
 #include "base/ccMacros.h"
 #include "base/CCVector.h"
 #include "base/CCProtocols.h"
@@ -1718,6 +1719,34 @@ public:
      * @return The Component by name.
      */
     Component* getComponent(const std::string& name);
+
+    /**
+     * Gets a component by its type.
+     *
+     * @param T The component type to search for.
+     * @return The first Component of type T, or nullptr if not found.
+     */
+    template<typename T>
+    T* getComponent()
+    {
+        if (_componentContainer)
+            return _componentContainer->get<T>();
+        return nullptr;
+    }
+
+    /**
+     * Gets all components of a specific type.
+     *
+     * @param T The component type to search for.
+     * @return Vector of pointers to components of type T.
+     */
+    template<typename T>
+    std::vector<T*> getComponents()
+    {
+        if (_componentContainer)
+            return _componentContainer->getAll<T>();
+        return std::vector<T*>();
+    }
 
     /**
      * Adds a component.

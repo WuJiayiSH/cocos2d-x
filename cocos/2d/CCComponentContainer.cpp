@@ -27,6 +27,7 @@ THE SOFTWARE.
 #include "2d/CCComponentContainer.h"
 #include "2d/CCComponent.h"
 #include "2d/CCNode.h"
+#include <algorithm>
 
 NS_CC_BEGIN
 
@@ -41,15 +42,12 @@ ComponentContainer::~ComponentContainer()
 
 Component* ComponentContainer::get(const std::string& name) const
 {
-    Component* ret = nullptr;
-
-    auto it = _componentMap.find(name);
-    if (it != _componentMap.end())
+    auto it = _componentsByName.find(name);
+    if (it != _componentsByName.end())
     {
-        ret = it->second;
+        return it->second;
     }
-
-    return ret;
+    return nullptr;
 }
 
 bool ComponentContainer::add(Component *com)
@@ -61,12 +59,19 @@ bool ComponentContainer::add(Component *com)
     {
         auto componentName = com->getName();
 
-        if (_componentMap.find(componentName) != _componentMap.end())
+        if (_componentsByName.find(componentName) != _componentsByName.end())
         {
             CCASSERT(false, "ComponentContainer already have this kind of component");
             break;
         }
-        _componentMap[componentName] = com;
+        
+        // Add to name-based map
+        _componentsByName[componentName] = com;
+        
+        // Add to type-based map
+        std::type_index typeIdx(typeid(*com));
+        _componentsByType[typeIdx].push_back(com);
+        
         com->retain();
         com->setOwner(_owner);
         com->onAdd();
@@ -81,11 +86,29 @@ bool ComponentContainer::remove(const std::string& componentName)
     bool ret = false;
     do 
     {        
-        auto iter = _componentMap.find(componentName);
-        CC_BREAK_IF(iter == _componentMap.end());
+        auto iter = _componentsByName.find(componentName);
+        if (iter == _componentsByName.end())
+            break;
 
         auto component = iter->second;
-        _componentMap.erase(componentName);
+        
+        // Remove from name-based map
+        _componentsByName.erase(componentName);
+        
+        // Remove from type-based map
+        std::type_index typeIdx(typeid(*component));
+        auto typeIter = _componentsByType.find(typeIdx);
+        if (typeIter != _componentsByType.end())
+        {
+            auto& typeVector = typeIter->second;
+            typeVector.erase(std::remove(typeVector.begin(), typeVector.end(), component), typeVector.end());
+            
+            // Remove the type entry if no components of this type remain
+            if (typeVector.empty())
+            {
+                _componentsByType.erase(typeIter);
+            }
+        }
 
         component->onRemove();
         component->setOwner(nullptr);
@@ -104,26 +127,27 @@ bool ComponentContainer::remove(Component *com)
 
 void ComponentContainer::removeAll()
 {
-    if (!_componentMap.empty())
+    if (!_componentsByName.empty())
     {
-        for (auto& iter : _componentMap)
+        for (auto& iter : _componentsByName)
         {
             iter.second->onRemove();
             iter.second->setOwner(nullptr);
             iter.second->release();
         }
         
-        _componentMap.clear();
+        _componentsByName.clear();
+        _componentsByType.clear();
         _owner->unscheduleUpdate();
     }
 }
 
 void ComponentContainer::visit(float delta)
 {
-    if (!_componentMap.empty())
+    if (!_componentsByName.empty())
     {
         CC_SAFE_RETAIN(_owner);
-        for (auto& iter : _componentMap)
+        for (auto& iter : _componentsByName)
         {
             iter.second->update(delta);
         }
@@ -133,7 +157,7 @@ void ComponentContainer::visit(float delta)
 
 void ComponentContainer::onEnter()
 {
-    for (auto& iter : _componentMap)
+    for (auto& iter : _componentsByName)
     {
         iter.second->onEnter();
     }
@@ -141,7 +165,7 @@ void ComponentContainer::onEnter()
 
 void ComponentContainer::onExit()
 {
-    for (auto& iter : _componentMap)
+    for (auto& iter : _componentsByName)
     {
         iter.second->onExit();
     }

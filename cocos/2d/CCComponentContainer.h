@@ -30,6 +30,10 @@ THE SOFTWARE.
 
 #include "base/CCMap.h"
 #include <string>
+#include <unordered_map>
+#include <typeinfo>
+#include <typeindex>
+#include <vector>
 
 NS_CC_BEGIN
 
@@ -56,6 +60,44 @@ public:
      */
 	Component* get(const std::string& name) const;
 
+    /**
+     * Get component by type. Returns the first component of the specified type.
+     * @param T The component type to search for
+     * @return Pointer to component of type T, or nullptr if not found
+     */
+    template<typename T>
+    T* get() const
+    {
+        std::type_index typeIdx(typeid(T));
+        auto it = _componentsByType.find(typeIdx);
+        if (it != _componentsByType.end() && !it->second.empty())
+        {
+            return static_cast<T*>(it->second[0]);
+        }
+        return nullptr;
+    }
+
+    /**
+     * Get all components of a specific type.
+     * @param T The component type to search for
+     * @return Vector of pointers to components of type T
+     */
+    template<typename T>
+    std::vector<T*> getAll() const
+    {
+        std::vector<T*> results;
+        std::type_index typeIdx(typeid(T));
+        auto it = _componentsByType.find(typeIdx);
+        if (it != _componentsByType.end())
+        {
+            for (Component* comp : it->second)
+            {
+                results.push_back(static_cast<T*>(comp));
+            }
+        }
+        return results;
+    }
+
     bool add(Component *com);
     bool remove(const std::string& name);
     bool remove(Component *com);
@@ -65,9 +107,10 @@ public:
     void onEnter();
     void onExit();
     
-    bool isEmpty() const { return _componentMap.empty(); } 
+    bool isEmpty() const { return _componentsByName.empty(); } 
 private:
-    std::unordered_map<std::string, Component*> _componentMap;
+    std::unordered_map<std::string, Component*> _componentsByName;
+    std::unordered_map<std::type_index, std::vector<Component*>> _componentsByType;
     Node *_owner;
     
     friend class Node;
