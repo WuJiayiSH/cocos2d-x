@@ -116,13 +116,13 @@ function(cocos_copy_target_dll cocos_target)
     if(all_depend_dlls)
         list(REMOVE_DUPLICATES all_depend_dlls)
     endif()
-    foreach(cc_dll_file ${all_depend_dlls})
-        get_filename_component(cc_dll_name ${cc_dll_file} NAME)
+
+    if(all_depend_dlls)
         add_custom_command(TARGET ${cocos_target} POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E echo "copy dll into target file dir: ${cc_dll_name} ..."
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different ${cc_dll_file} "$<TARGET_FILE_DIR:${cocos_target}>/${cc_dll_name}"
+            COMMAND ${CMAKE_COMMAND} -E echo "copy dlls into target file dir: $<TARGET_FILE_DIR:${cocos_target}> ..."
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different ${all_depend_dlls} "$<TARGET_FILE_DIR:${cocos_target}>"
         )
-    endforeach()
+    endif()
 endfunction()
 
 # mark `FILES` as resources, files will be put into sub-dir tree depend on its absolute path
