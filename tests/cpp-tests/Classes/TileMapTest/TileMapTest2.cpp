@@ -121,7 +121,7 @@ TileMapTestNew::TileMapTestNew()
     // Convert it to "alias" (GL_LINEAR filtering)
     map->getTexture()->setAntiAliasTexParameters();
     
-    Size CC_UNUSED s = map->getContentSize();
+    Size [[maybe_unused]] s = map->getContentSize();
     CCLOG("ContentSize: %f, %f", s.width,s.height);
 
     // If you are not going to use the Map, you can free it now
@@ -156,7 +156,7 @@ TileMapEditTestNew::TileMapEditTestNew()
     // Create an Aliased Atlas
     map->getTexture()->setAliasTexParameters();
     
-    Size CC_UNUSED s = map->getContentSize();
+    Size [[maybe_unused]] s = map->getContentSize();
     CCLOG("ContentSize: %f, %f", s.width,s.height);
     
     // If you are not going to use the Map, you can free it now
@@ -226,7 +226,7 @@ TMXOrthoTestNew::TMXOrthoTestNew()
 
     addChild(map, 0, kTagTileMap);
     
-    Size CC_UNUSED s = map->getContentSize();
+    Size [[maybe_unused]] s = map->getContentSize();
     CCLOG("ContentSize: %f, %f", s.width,s.height);
 
     auto scale = ScaleBy::create(10, 0.1f);
@@ -268,7 +268,7 @@ TMXOrthoTest2New::TMXOrthoTest2New()
     auto map = cocos2d::experimental::TMXTiledMap::create("TileMaps/orthogonal-test1.tmx");
     addChild(map, 0, kTagTileMap);
 
-    Size CC_UNUSED s = map->getContentSize();
+    Size [[maybe_unused]] s = map->getContentSize();
     CCLOG("ContentSize: %f, %f", s.width,s.height);
 
     map->runAction( ScaleBy::create(2, 0.5f) ) ;
@@ -289,7 +289,7 @@ TMXOrthoTest3New::TMXOrthoTest3New()
     auto map = cocos2d::experimental::TMXTiledMap::create("TileMaps/orthogonal-test3.tmx");
     addChild(map, 0, kTagTileMap);
     
-    Size CC_UNUSED s = map->getContentSize();
+    Size [[maybe_unused]] s = map->getContentSize();
     CCLOG("ContentSize: %f, %f", s.width,s.height);
     
     map->setScale(0.2f);
@@ -311,7 +311,7 @@ TMXOrthoTest4New::TMXOrthoTest4New()
     auto map = cocos2d::experimental::TMXTiledMap::create("TileMaps/orthogonal-test4.tmx");
     addChild(map, 0, kTagTileMap);
     
-    Size CC_UNUSED s1 = map->getContentSize();
+    Size [[maybe_unused]] s1 = map->getContentSize();
     CCLOG("ContentSize: %f, %f", s1.width,s1.height);
     
     map->setAnchorPoint(Vec2(0, 0));
@@ -373,7 +373,7 @@ TMXReadWriteTestNew::TMXReadWriteTestNew()
     auto map = cocos2d::experimental::TMXTiledMap::create("TileMaps/orthogonal-test2.tmx");
     addChild(map, 0, kTagTileMap);
     
-    Size CC_UNUSED s = map->getContentSize();
+    Size [[maybe_unused]] s = map->getContentSize();
     CCLOG("ContentSize: %f, %f", s.width,s.height);
 
     
@@ -503,7 +503,7 @@ TMXHexTestNew::TMXHexTestNew()
     auto map = cocos2d::experimental::TMXTiledMap::create("TileMaps/hexa-test.tmx");
     addChild(map, 0, kTagTileMap);
     
-    Size CC_UNUSED s = map->getContentSize();
+    Size [[maybe_unused]] s = map->getContentSize();
     CCLOG("ContentSize: %f, %f", s.width,s.height);
 }
 
@@ -549,7 +549,7 @@ TMXIsoTest1New::TMXIsoTest1New()
     auto map = cocos2d::experimental::TMXTiledMap::create("TileMaps/iso-test1.tmx");
     addChild(map, 0, kTagTileMap);
     
-    Size CC_UNUSED s = map->getContentSize();
+    Size [[maybe_unused]] s = map->getContentSize();
     CCLOG("ContentSize: %f, %f", s.width,s.height);
     
     map->setAnchorPoint(Vec2(0.5f, 0.5f));
@@ -573,7 +573,7 @@ TMXIsoTest2New::TMXIsoTest2New()
     auto map = cocos2d::experimental::TMXTiledMap::create("TileMaps/iso-test2.tmx");
     addChild(map, 0, kTagTileMap);    
     
-    Size CC_UNUSED s = map->getContentSize();
+    Size [[maybe_unused]] s = map->getContentSize();
     CCLOG("ContentSize: %f, %f", s.width,s.height);
     
     // move map to the center of the screen
@@ -600,7 +600,7 @@ TMXUncompressedTestNew::TMXUncompressedTestNew()
     auto map = cocos2d::experimental::TMXTiledMap::create("TileMaps/iso-test2-uncompressed.tmx");
     addChild(map, 0, kTagTileMap);    
     
-    Size CC_UNUSED s = map->getContentSize();
+    Size [[maybe_unused]] s = map->getContentSize();
     CCLOG("ContentSize: %f, %f", s.width,s.height);
     
     // move map to the center of the screen
@@ -635,7 +635,7 @@ TMXTilesetTestNew::TMXTilesetTestNew()
     auto map = cocos2d::experimental::TMXTiledMap::create("TileMaps/orthogonal-test5.tmx");
     addChild(map, 0, kTagTileMap);
     
-    Size CC_UNUSED s = map->getContentSize();
+    Size [[maybe_unused]] s = map->getContentSize();
     CCLOG("ContentSize: %f, %f", s.width,s.height);
 }
 
@@ -654,7 +654,7 @@ TMXOrthoObjectsTestNew::TMXOrthoObjectsTestNew()
     auto map = cocos2d::experimental::TMXTiledMap::create("TileMaps/ortho-objects.tmx");
     addChild(map, -1, kTagTileMap);
     
-    Size CC_UNUSED s = map->getContentSize();
+    Size [[maybe_unused]] s = map->getContentSize();
     CCLOG("ContentSize: %f, %f", s.width,s.height);
     
     auto group = map->getObjectGroup("Object Group 1");
@@ -704,7 +704,7 @@ TMXIsoObjectsTestNew::TMXIsoObjectsTestNew()
     auto map = cocos2d::experimental::TMXTiledMap::create("TileMaps/iso-test-objectgroup.tmx");
     addChild(map, -1, kTagTileMap);
     
-    Size CC_UNUSED s = map->getContentSize();
+    Size [[maybe_unused]] s = map->getContentSize();
     CCLOG("ContentSize: %f, %f", s.width,s.height);
 
     auto group = map->getObjectGroup("Object Group 1");
@@ -755,7 +755,7 @@ TMXResizeTestNew::TMXResizeTestNew()
     auto map = cocos2d::experimental::TMXTiledMap::create("TileMaps/orthogonal-test5.tmx");
     addChild(map, 0, kTagTileMap);
     
-    Size CC_UNUSED s = map->getContentSize();
+    Size [[maybe_unused]] s = map->getContentSize();
     CCLOG("ContentSize: %f, %f", s.width,s.height);
 
     cocos2d::experimental::TMXLayer* layer;
@@ -861,7 +861,7 @@ TMXOrthoZorderNew::TMXOrthoZorderNew()
     auto map = cocos2d::experimental::TMXTiledMap::create("TileMaps/orthogonal-test-zorder.tmx");
     addChild(map, 0, kTagTileMap);
     
-    Size CC_UNUSED s = map->getContentSize();
+    Size [[maybe_unused]] s = map->getContentSize();
     CCLOG("ContentSize: %f, %f", s.width,s.height);
     
     _tamara = Sprite::create(s_pathSister1);
@@ -994,7 +994,7 @@ TMXOrthoVertexZNew::TMXOrthoVertexZNew()
     auto map = cocos2d::experimental::TMXTiledMap::create("TileMaps/orthogonal-test-vertexz.tmx");
     addChild(map, 0, kTagTileMap);
     
-    Size CC_UNUSED s = map->getContentSize();
+    Size [[maybe_unused]] s = map->getContentSize();
     CCLOG("ContentSize: %f, %f", s.width,s.height);
     
     // because I'm lazy, I'm reusing a tile as an sprite, but since this method uses vertexZ, you
@@ -1067,7 +1067,7 @@ TMXIsoMoveLayerNew::TMXIsoMoveLayerNew()
     
     map->setPosition(Vec2(-700,-50));
 
-    Size CC_UNUSED s = map->getContentSize();
+    Size [[maybe_unused]] s = map->getContentSize();
     CCLOG("ContentSize: %f, %f", s.width,s.height);
 }
 
@@ -1092,7 +1092,7 @@ TMXOrthoMoveLayerNew::TMXOrthoMoveLayerNew()
     auto map = cocos2d::experimental::TMXTiledMap::create("TileMaps/orthogonal-test-movelayer.tmx");
     addChild(map, 0, kTagTileMap);
 
-    Size CC_UNUSED s = map->getContentSize();
+    Size [[maybe_unused]] s = map->getContentSize();
     CCLOG("ContentSize: %f, %f", s.width,s.height);
 }
 
@@ -1146,7 +1146,7 @@ TMXOrthoFlipTestNew::TMXOrthoFlipTestNew()
     auto map = cocos2d::experimental::TMXTiledMap::create("TileMaps/ortho-rotation-test.tmx");
     addChild(map, 0, kTagTileMap);
 
-    Size CC_UNUSED s = map->getContentSize();
+    Size [[maybe_unused]] s = map->getContentSize();
     log("ContentSize: %f, %f", s.width,s.height);
 
     auto action = ScaleBy::create(2, 0.5f);
@@ -1293,7 +1293,7 @@ TMXBug987New::TMXBug987New()
     auto map = cocos2d::experimental::TMXTiledMap::create("TileMaps/orthogonal-test6.tmx");
     addChild(map, 0, kTagTileMap);
 
-    Size CC_UNUSED s1 = map->getContentSize();
+    Size [[maybe_unused]] s1 = map->getContentSize();
     CCLOG("ContentSize: %f, %f", s1.width,s1.height);
 
     map->setAnchorPoint(Vec2(0, 0));
@@ -1344,7 +1344,7 @@ TMXGIDObjectsTestNew::TMXGIDObjectsTestNew()
     auto map = cocos2d::experimental::TMXTiledMap::create("TileMaps/test-object-layer.tmx");
     addChild(map, -1, kTagTileMap);
 
-    Size CC_UNUSED s = map->getContentSize();
+    Size [[maybe_unused]] s = map->getContentSize();
     CCLOG("Contentsize: %f, %f", s.width, s.height);
 
     CCLOG("----> Iterating over all the group objects");

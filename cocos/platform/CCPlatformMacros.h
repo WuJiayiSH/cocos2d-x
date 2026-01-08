@@ -365,11 +365,10 @@ private: varType varName; public: virtual inline varType get##funName() const { 
 #define CC_FORMAT_PRINTF_SIZE_T "%08zX"
 #endif
 
-#ifdef __GNUC__
-#define CC_UNUSED __attribute__ ((unused))
-#else
-#define CC_UNUSED
-#endif
+/** @def CC_UNUSED
+ * @deprecated Use [[maybe_unused]] instead.
+ */
+#define CC_UNUSED [[maybe_unused]]
 
 /** @def CC_REQUIRES_NULL_TERMINATION
  * 
