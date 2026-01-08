@@ -199,9 +199,10 @@ namespace utils
 
     /**
     @brief Create an object of Type which the specified initializer belongs to and initialize it.
+    @deprecated Use CC_CREATE_FUNCS instead.
     */
     template<typename Type, typename F, typename... Args>
-    CC_ALWAYS_INLINE Type* createHelper(F Type::* initializer, Args&&... args)
+    [[deprecated]] CC_ALWAYS_INLINE Type* createHelper(F Type::* initializer, Args&&... args)
     {
         Type *obj = new (std::nothrow) Type();
         if (obj && (obj->*initializer)(std::forward<Args>(args)...))

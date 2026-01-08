@@ -34,12 +34,12 @@ Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
 #include "platform/CCPlatformConfig.h"
 #include "platform/CCPlatformDefine.h"
 
-/** @def CREATE_FUNC(__TYPE__)
+/** @def CC_CREATE_FUNC(__TYPE__)
  * Define a create function for a specific type, such as Layer.
  *
  * @param __TYPE__  class type to add create(), such as Layer.
  */
-#define CREATE_FUNC(__TYPE__) \
+#define CC_CREATE_FUNC(__TYPE__) \
 static __TYPE__* create() \
 { \
     __TYPE__ *pRet = new(std::nothrow) __TYPE__(); \
@@ -52,6 +52,34 @@ static __TYPE__* create() \
     { \
         delete pRet; \
         pRet = nullptr; \
+        return nullptr; \
+    } \
+}
+
+/** @def CREATE_FUNC(__TYPE__)
+ * @deprecated  Use CC_VARIADIC_CREATE_FUNC when possible, otherwise use CC_CREATE_FUNC.
+ */
+#define CREATE_FUNC(__TYPE__) CC_CREATE_FUNC(__TYPE__)
+
+/**
+ * @def CC_VARIADIC_CREATE_FUNC(__TYPE__)
+ * Define a create function template for a specific type with variadic arguments,
+ * allowing to create an object of the given type as long as its init function
+ * matches the passed arguments.
+ */
+#define CC_VARIADIC_CREATE_FUNC(__TYPE__) \
+template <typename... Args> \
+static __TYPE__* create(Args&&... args) \
+{ \
+    __TYPE__* pRet = new (std::nothrow) __TYPE__(); \
+    if (pRet && pRet->init(std::forward<Args>(args)...)) \
+    { \
+        pRet->autorelease(); \
+        return pRet; \
+    } \
+    else \
+    { \
+        delete pRet; \
         return nullptr; \
     } \
 }
