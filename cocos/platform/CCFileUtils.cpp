@@ -1628,6 +1628,21 @@ std::string FileUtils::getFileExtension(const std::string& filePath) const
     return fileExtension;
 }
 
+std::string FileUtils::getFilename(const std::string& filePath) const
+{
+    std::string fileName;
+    size_t pos = filePath.find_last_of("/\\");
+    if (pos != std::string::npos)
+    {
+        fileName = filePath.substr(pos + 1);
+    }
+    else
+    {
+        fileName = filePath;
+    }
+    return fileName;
+}
+
 void FileUtils::valueMapCompact(ValueMap& /*valueMap*/) const
 {
 }
