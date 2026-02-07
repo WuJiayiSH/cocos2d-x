@@ -31,6 +31,7 @@
 
 NS_CC_BEGIN
 
+namespace{
 unsigned char* getImageData(Image* img, Texture2D::PixelFormat&  ePixFmt)
 {
     unsigned char*    pTmpData = img->getData();
@@ -122,30 +123,30 @@ unsigned char* getImageData(Image* img, Texture2D::PixelFormat&  ePixFmt)
 
 Image* createImage(const std::string& path)
 {
-    // Split up directory and filename
-    // MUTEX:
-    // Needed since addImageAsync calls this method from a different thread
-
-    std::string fullpath = FileUtils::getInstance()->fullPathForFilename(path);
-    if (fullpath.empty())
+    Image* image = new (std::nothrow) Image();
+    if (image)
     {
-        return nullptr;
+        std::string fullpath = FileUtils::getInstance()->fullPathForFilename(path);
+        if (!fullpath.empty() && image->initWithImageFile(fullpath))
+        {
+            return image;
+        }
+        
+#if defined(COCOS2D_DEBUG) && (COCOS2D_DEBUG > 0)
+        unsigned char data[] ={255,0,0,255};
+#else
+        unsigned char data[] ={0,0,0,0};
+#endif
+        if (image->initWithRawData(data, sizeof(data), 1, 1, 4))
+        {
+            return image;
+        }
     }
 
-    // all images are handled by UIImage except PVR extension that is handled by our own handler
-    Image* image = nullptr;
-    do
-    {
-        image = new (std::nothrow) Image();
-        CC_BREAK_IF(nullptr == image);
-
-        bool bRet = image->initWithImageFile(fullpath);
-        CC_BREAK_IF(!bRet);
-    }
-    while (0);
-
-    return image;
+    CC_SAFE_DELETE(image);
+    return nullptr;
 }
+} // anonymous namespace
 
 TextureCube::TextureCube()
 {
