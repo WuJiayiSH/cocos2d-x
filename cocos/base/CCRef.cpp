@@ -64,25 +64,6 @@ Ref::Ref()
 
 Ref::~Ref()
 {
-#if CC_ENABLE_SCRIPT_BINDING
-    ScriptEngineProtocol* pEngine = ScriptEngineManager::getInstance()->getScriptEngine();
-    if (pEngine != nullptr && _luaID)
-    {
-        // if the object is referenced by Lua engine, remove it
-        pEngine->removeScriptObjectByObject(this);
-    }
-#if !CC_ENABLE_GC_FOR_NATIVE_OBJECTS
-    else
-    {
-        if (pEngine != nullptr && pEngine->getScriptType() == kScriptTypeJavascript)
-        {
-            pEngine->removeScriptObjectByObject(this);
-        }
-    }
-#endif // !CC_ENABLE_GC_FOR_NATIVE_OBJECTS
-#endif // CC_ENABLE_SCRIPT_BINDING
-
-
 #if CC_REF_LEAK_DETECTION
     if (_referenceCount != 0)
         untrackRef(this);
@@ -145,9 +126,20 @@ void Ref::release()
 
 #if CC_ENABLE_SCRIPT_BINDING
         ScriptEngineProtocol* pEngine = ScriptEngineManager::getInstance()->getScriptEngine();
-        if (pEngine != nullptr && pEngine->getScriptType() == kScriptTypeJavascript)
+        if (pEngine != nullptr)
         {
-            pEngine->removeObjectProxy(this);
+            if (pEngine->getScriptType() == kScriptTypeJavascript)
+            {
+                pEngine->removeObjectProxy(this);
+#if !CC_ENABLE_GC_FOR_NATIVE_OBJECTS
+                pEngine->removeScriptObjectByObject(this);
+#endif // !CC_ENABLE_GC_FOR_NATIVE_OBJECTS
+            }
+            else if (_luaID)
+            {
+                // if the object is referenced by Lua engine, remove it
+                pEngine->removeScriptObjectByObject(this);
+            }
         }
 #endif // CC_ENABLE_SCRIPT_BINDING
 
