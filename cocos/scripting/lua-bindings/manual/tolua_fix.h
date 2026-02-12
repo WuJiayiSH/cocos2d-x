@@ -36,8 +36,6 @@
 #endif
 #endif
 
-#define TOLUA_REFID_PTR_MAPPING "toluafix_refid_ptr_mapping"
-#define TOLUA_REFID_TYPE_MAPPING "toluafix_refid_type_mapping"
 #define TOLUA_REFID_FUNCTION_MAPPING "toluafix_refid_function_mapping"
 
 /**
@@ -83,7 +81,7 @@ TOLUA_API int toluafix_pushusertype_ccobject(lua_State* L,
  * @lua NA
  * @js NA
  */
-TOLUA_API int toluafix_remove_ccobject_by_refid(lua_State* L, int refid);
+TOLUA_API int toluafix_remove_ccobject_by_refid(lua_State* L, void* ptr);
 
 /**
  * Get the reference id of the Lua function at the given acceptable index lo of stack.

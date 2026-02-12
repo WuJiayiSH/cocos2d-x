@@ -220,7 +220,7 @@ void LuaStack::addLuaLoader(lua_CFunction func)
 
 void LuaStack::removeScriptObjectByObject(Ref* pObj)
 {
-    toluafix_remove_ccobject_by_refid(_state, pObj->_luaID);
+    toluafix_remove_ccobject_by_refid(_state, pObj);
 }
 
 void LuaStack::removeScriptHandler(int nHandler)
