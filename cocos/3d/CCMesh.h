@@ -228,6 +228,16 @@ public:
 
     std::string getTextureFileName(){ return _texFile; }
 
+    /**
+     * set this mesh transparent or not
+     */
+    void setTransparent(bool isTransparent) { _isTransparent = isTransparent; }
+
+    /**
+     * is this mesh transparent
+     */
+    bool isTransparent() const { return _isTransparent; }
+
 CC_CONSTRUCTOR_ACCESS:
 
     Mesh();
