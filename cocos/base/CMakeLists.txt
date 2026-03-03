@@ -90,6 +90,7 @@ set(COCOS_BASE_HEADER
     base/CCScheduler.h
     base/CCEventType.h
     base/CCIMEDispatcher.h
+    base/encoding/CCPList.h
     )
 
 set(COCOS_BASE_SRC
@@ -148,6 +149,7 @@ set(COCOS_BASE_SRC
     base/etc2.cpp
     base/pvr.cpp
     base/s3tc.cpp
+    base/encoding/CCPList.cpp
     ${COCOS_BASE_SPECIFIC_SRC}
 
     )

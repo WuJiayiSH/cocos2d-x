@@ -521,6 +521,8 @@
         "cocos/base/s3tc.h", 
         "cocos/base/uthash.h", 
         "cocos/base/utlist.h", 
+        "cocos/base/encoding/CCPList.cpp",
+        "cocos/base/encoding/CCPList.h",
         "cocos/cocos2d.cpp", 
         "cocos/cocos2d.h", 
         "cocos/deprecated/CCArray.cpp", 

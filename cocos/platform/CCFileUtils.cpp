@@ -31,10 +31,8 @@ THE SOFTWARE.
 #include "base/CCData.h"
 #include "base/ccMacros.h"
 #include "base/CCDirector.h"
-#include "platform/CCSAXParser.h"
-//#include "base/ccUtils.h"
+#include "base/encoding/CCPList.h"
 
-#include "tinyxml2/tinyxml2.h"
 #ifdef MINIZIP_FROM_SYSTEM
 #include <minizip/unzip.h>
 #else // from our embedded sources
@@ -46,318 +44,41 @@ THE SOFTWARE.
 
 NS_CC_BEGIN
 
-// Implement DictMaker
-
-#if (CC_TARGET_PLATFORM != CC_PLATFORM_IOS) && (CC_TARGET_PLATFORM != CC_PLATFORM_MAC)
-
-typedef enum
-{
-    SAX_NONE = 0,
-    SAX_KEY,
-    SAX_DICT,
-    SAX_INT,
-    SAX_REAL,
-    SAX_STRING,
-    SAX_ARRAY
-}SAXState;
-
-typedef enum
-{
-    SAX_RESULT_NONE = 0,
-    SAX_RESULT_DICT,
-    SAX_RESULT_ARRAY
-}SAXResult;
-
-class DictMaker : public SAXDelegator
-{
-public:
-    SAXResult _resultType;
-    ValueMap _rootDict;
-    ValueVector _rootArray;
-
-    std::string _curKey;   ///< parsed key
-    std::string _curValue; // parsed value
-    SAXState _state;
-
-    ValueMap*  _curDict;
-    ValueVector* _curArray;
-
-    std::stack<ValueMap*> _dictStack;
-    std::stack<ValueVector*> _arrayStack;
-    std::stack<SAXState>  _stateStack;
-
-public:
-    DictMaker()
-        : _resultType(SAX_RESULT_NONE)
-        , _state(SAX_NONE)
-    {
-    }
-
-    ~DictMaker()
-    {
-    }
-
-    ValueMap dictionaryWithContentsOfFile(const std::string& fileName)
-    {
-        _resultType = SAX_RESULT_DICT;
-        SAXParser parser;
-
-        CCASSERT(parser.init("UTF-8"), "The file format isn't UTF-8");
-        parser.setDelegator(this);
-
-        parser.parse(fileName);
-        return _rootDict;
-    }
-
-    ValueMap dictionaryWithDataOfFile(const char* filedata, int filesize)
-    {
-        _resultType = SAX_RESULT_DICT;
-        SAXParser parser;
-
-        CCASSERT(parser.init("UTF-8"), "The file format isn't UTF-8");
-        parser.setDelegator(this);
-
-        parser.parse(filedata, filesize);
-        return _rootDict;
-    }
-
-    ValueVector arrayWithContentsOfFile(const std::string& fileName)
-    {
-        _resultType = SAX_RESULT_ARRAY;
-        SAXParser parser;
-
-        CCASSERT(parser.init("UTF-8"), "The file format isn't UTF-8");
-        parser.setDelegator(this);
-
-        parser.parse(fileName);
-        return _rootArray;
-    }
-
-    void startElement(void *ctx, const char *name, const char **atts) override
-    {
-        const std::string sName(name);
-        if( sName == "dict" )
-        {
-            if(_resultType == SAX_RESULT_DICT && _rootDict.empty())
-            {
-                _curDict = &_rootDict;
-            }
-
-            _state = SAX_DICT;
-
-            SAXState preState = SAX_NONE;
-            if (! _stateStack.empty())
-            {
-                preState = _stateStack.top();
-            }
-
-            if (SAX_ARRAY == preState)
-            {
-                // add a new dictionary into the array
-                _curArray->push_back(Value(ValueMap()));
-                _curDict = &(_curArray->rbegin())->asValueMap();
-            }
-            else if (SAX_DICT == preState)
-            {
-                // add a new dictionary into the pre dictionary
-                CCASSERT(! _dictStack.empty(), "The state is wrong!");
-                ValueMap* preDict = _dictStack.top();
-                (*preDict)[_curKey] = Value(ValueMap());
-                _curDict = &(*preDict)[_curKey].asValueMap();
-            }
-
-            // record the dict state
-            _stateStack.push(_state);
-            _dictStack.push(_curDict);
-        }
-        else if(sName == "key")
-        {
-            _state = SAX_KEY;
-        }
-        else if(sName == "integer")
-        {
-            _state = SAX_INT;
-        }
-        else if(sName == "real")
-        {
-            _state = SAX_REAL;
-        }
-        else if(sName == "string")
-        {
-            _state = SAX_STRING;
-        }
-        else if (sName == "array")
-        {
-            _state = SAX_ARRAY;
-
-            if (_resultType == SAX_RESULT_ARRAY && _rootArray.empty())
-            {
-                _curArray = &_rootArray;
-            }
-            SAXState preState = SAX_NONE;
-            if (! _stateStack.empty())
-            {
-                preState = _stateStack.top();
-            }
-
-            if (preState == SAX_DICT)
-            {
-                (*_curDict)[_curKey] = Value(ValueVector());
-                _curArray = &(*_curDict)[_curKey].asValueVector();
-            }
-            else if (preState == SAX_ARRAY)
-            {
-                CCASSERT(! _arrayStack.empty(), "The state is wrong!");
-                ValueVector* preArray = _arrayStack.top();
-                preArray->push_back(Value(ValueVector()));
-                _curArray = &(_curArray->rbegin())->asValueVector();
-            }
-            // record the array state
-            _stateStack.push(_state);
-            _arrayStack.push(_curArray);
-        }
-        else
-        {
-            _state = SAX_NONE;
-        }
-    }
-
-    void endElement(void *ctx, const char *name) override
-    {
-        SAXState curState = _stateStack.empty() ? SAX_DICT : _stateStack.top();
-        const std::string sName((char*)name);
-        if( sName == "dict" )
-        {
-            _stateStack.pop();
-            _dictStack.pop();
-            if ( !_dictStack.empty())
-            {
-                _curDict = _dictStack.top();
-            }
-        }
-        else if (sName == "array")
-        {
-            _stateStack.pop();
-            _arrayStack.pop();
-            if (! _arrayStack.empty())
-            {
-                _curArray = _arrayStack.top();
-            }
-        }
-        else if (sName == "true")
-        {
-            if (SAX_ARRAY == curState)
-            {
-                _curArray->push_back(Value(true));
-            }
-            else if (SAX_DICT == curState)
-            {
-                (*_curDict)[_curKey] = Value(true);
-            }
-        }
-        else if (sName == "false")
-        {
-            if (SAX_ARRAY == curState)
-            {
-                _curArray->push_back(Value(false));
-            }
-            else if (SAX_DICT == curState)
-            {
-                (*_curDict)[_curKey] = Value(false);
-            }
-        }
-        else if (sName == "string" || sName == "integer" || sName == "real")
-        {
-            if (SAX_ARRAY == curState)
-            {
-                if (sName == "string")
-                    _curArray->push_back(Value(_curValue));
-                else if (sName == "integer")
-                {
-                    const long long ll = std::atoll(_curValue.c_str());
-                    _curArray->push_back(ll >= 0 ? Value(static_cast<unsigned int>(ll)) : Value(static_cast<int>(ll)));
-                }
-                else
-                    _curArray->push_back(Value(std::atof(_curValue.c_str())));
-            }
-            else if (SAX_DICT == curState)
-            {
-                if (sName == "string")
-                    (*_curDict)[_curKey] = Value(_curValue);
-                else if (sName == "integer")
-                {
-                    const long long ll = std::atoll(_curValue.c_str());
-                    (*_curDict)[_curKey] = ll >= 0 ? Value(static_cast<unsigned int>(ll)) : Value(static_cast<int>(ll));
-                }
-                else
-                    (*_curDict)[_curKey] = Value(std::atof(_curValue.c_str()));
-            }
-
-            _curValue.clear();
-        }
-
-        _state = SAX_NONE;
-    }
-
-    void textHandler(void *ctx, const char *ch, size_t len) override
-    {
-        if (_state == SAX_NONE)
-        {
-            return;
-        }
-
-        SAXState curState = _stateStack.empty() ? SAX_DICT : _stateStack.top();
-        const std::string text = std::string((char*)ch,len);
-
-        switch(_state)
-        {
-        case SAX_KEY:
-            _curKey = text;
-            break;
-        case SAX_INT:
-        case SAX_REAL:
-        case SAX_STRING:
-            {
-                if (curState == SAX_DICT)
-                {
-                    CCASSERT(!_curKey.empty(), "key not found : <integer/real>");
-                }
-
-                _curValue.append(text);
-            }
-            break;
-        default:
-            break;
-        }
-    }
-};
-
 ValueMap FileUtils::getValueMapFromFile(const std::string& filename) const
 {
     const std::string fullPath = fullPathForFilename(filename);
-    DictMaker tMaker;
-    return tMaker.dictionaryWithContentsOfFile(fullPath);
+    const std::string content = getStringFromFile(fullPath);
+    
+    Value v;
+    if (PList::decode(content, v) == PList::ErrorCode::SUCCESS && v.getType() == Value::Type::MAP)
+    {
+        return v.asValueMap();
+    }
+    return ValueMap();
 }
 
 ValueMap FileUtils::getValueMapFromData(const char* filedata, int filesize) const
 {
-    DictMaker tMaker;
-    return tMaker.dictionaryWithDataOfFile(filedata, filesize);
+    Value v;
+    if (PList::decode(std::string_view(filedata, filesize), v) == PList::ErrorCode::SUCCESS && v.getType() == Value::Type::MAP)
+    {
+        return v.asValueMap();
+    }
+    return ValueMap();
 }
 
 ValueVector FileUtils::getValueVectorFromFile(const std::string& filename) const
 {
     const std::string fullPath = fullPathForFilename(filename);
-    DictMaker tMaker;
-    return tMaker.arrayWithContentsOfFile(fullPath);
+    const std::string content = getStringFromFile(fullPath);
+    
+    Value v;
+    if (PList::decode(content, v) == PList::ErrorCode::SUCCESS && v.getType() == Value::Type::VECTOR)
+    {
+        return v.asValueVector();
+    }
+    return ValueVector();
 }
-
-
-/*
- * forward statement
- */
-static tinyxml2::XMLElement* generateElementForArray(const ValueVector& array, tinyxml2::XMLDocument *doc);
-static tinyxml2::XMLElement* generateElementForDict(const ValueMap& dict, tinyxml2::XMLDocument *doc);
 
 /*
  * Use tinyxml2 to write plist files
@@ -369,190 +90,17 @@ bool FileUtils::writeToFile(const ValueMap& dict, const std::string &fullPath) c
 
 bool FileUtils::writeValueMapToFile(const ValueMap& dict, const std::string& fullPath) const
 {
-    tinyxml2::XMLDocument *doc = new (std::nothrow)tinyxml2::XMLDocument();
-    if (nullptr == doc)
-        return false;
-
-    tinyxml2::XMLDeclaration *declaration = doc->NewDeclaration("xml version=\"1.0\" encoding=\"UTF-8\"");
-    if (nullptr == declaration)
-    {
-        delete doc;
-        return false;
-    }
-
-    doc->LinkEndChild(declaration);
-    tinyxml2::XMLElement *docType = doc->NewElement("!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\"");
-    doc->LinkEndChild(docType);
-
-    tinyxml2::XMLElement *rootEle = doc->NewElement("plist");
-    if (nullptr == rootEle)
-    {
-        delete doc;
-        return false;
-    }
-    rootEle->SetAttribute("version", "1.0");
-    doc->LinkEndChild(rootEle);
-
-    tinyxml2::XMLElement *innerDict = generateElementForDict(dict, doc);
-    if (nullptr == innerDict)
-    {
-        delete doc;
-        return false;
-    }
-    rootEle->LinkEndChild(innerDict);
-
-    bool ret = tinyxml2::XML_SUCCESS == doc->SaveFile(getSuitableFOpen(fullPath).c_str());
-
-    delete doc;
-    return ret;
+    Value v(dict);
+    std::string content = PList::encode(v);
+    return writeStringToFile(content, fullPath);
 }
 
 bool FileUtils::writeValueVectorToFile(const ValueVector& vecData, const std::string& fullPath) const
 {
-    tinyxml2::XMLDocument *doc = new (std::nothrow)tinyxml2::XMLDocument();
-    if (nullptr == doc)
-        return false;
-
-    tinyxml2::XMLDeclaration *declaration = doc->NewDeclaration("xml version=\"1.0\" encoding=\"UTF-8\"");
-    if (nullptr == declaration)
-    {
-        delete doc;
-        return false;
-    }
-
-    doc->LinkEndChild(declaration);
-    tinyxml2::XMLElement *docType = doc->NewElement("!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\"");
-    doc->LinkEndChild(docType);
-
-    tinyxml2::XMLElement *rootEle = doc->NewElement("plist");
-    if (nullptr == rootEle)
-    {
-        delete doc;
-        return false;
-    }
-    rootEle->SetAttribute("version", "1.0");
-    doc->LinkEndChild(rootEle);
-
-    tinyxml2::XMLElement *innerDict = generateElementForArray(vecData, doc);
-    if (nullptr == innerDict)
-    {
-        delete doc;
-        return false;
-    }
-    rootEle->LinkEndChild(innerDict);
-
-    bool ret = tinyxml2::XML_SUCCESS == doc->SaveFile(getSuitableFOpen(fullPath).c_str());
-
-    delete doc;
-    return ret;
+    Value v(vecData);
+    std::string content = PList::encode(v);
+    return writeStringToFile(content, fullPath);
 }
-
-/*
- * Generate tinyxml2::XMLElement for Object through a tinyxml2::XMLDocument
- */
-static tinyxml2::XMLElement* generateElementForObject(const Value& value, tinyxml2::XMLDocument *doc)
-{
-    // object is String
-    if (value.getType() == Value::Type::STRING)
-    {
-        tinyxml2::XMLElement* node = doc->NewElement("string");
-        tinyxml2::XMLText* content = doc->NewText(value.asString().c_str());
-        node->LinkEndChild(content);
-        return node;
-    }
-
-    // object is integer
-    if (value.getType() == Value::Type::INTEGER || value.getType() == Value::Type::UNSIGNED)
-    {
-        tinyxml2::XMLElement* node = doc->NewElement("integer");
-        tinyxml2::XMLText* content = doc->NewText(value.asString().c_str());
-        node->LinkEndChild(content);
-        return node;
-    }
-
-    // object is byte
-    if (value.getType() == Value::Type::BYTE)
-    {
-        tinyxml2::XMLElement* node = doc->NewElement("integer");
-        char buf[4];
-        sprintf(buf, "%d", static_cast<int>(value.asByte()));
-        tinyxml2::XMLText* content = doc->NewText(buf);
-        node->LinkEndChild(content);
-        return node;
-    }
-
-    // object is real
-    if (value.getType() == Value::Type::FLOAT || value.getType() == Value::Type::DOUBLE)
-    {
-        tinyxml2::XMLElement* node = doc->NewElement("real");
-        tinyxml2::XMLText* content = doc->NewText(value.asString().c_str());
-        node->LinkEndChild(content);
-        return node;
-    }
-
-    //object is bool
-    if (value.getType() == Value::Type::BOOLEAN) {
-        tinyxml2::XMLElement* node = doc->NewElement(value.asString().c_str());
-        return node;
-    }
-
-    // object is Array
-    if (value.getType() == Value::Type::VECTOR)
-        return generateElementForArray(value.asValueVector(), doc);
-
-    // object is Dictionary
-    if (value.getType() == Value::Type::MAP)
-        return generateElementForDict(value.asValueMap(), doc);
-
-    CCLOG("This type cannot appear in property list");
-    return nullptr;
-}
-
-/*
- * Generate tinyxml2::XMLElement for Dictionary through a tinyxml2::XMLDocument
- */
-static tinyxml2::XMLElement* generateElementForDict(const ValueMap& dict, tinyxml2::XMLDocument *doc)
-{
-    tinyxml2::XMLElement* rootNode = doc->NewElement("dict");
-
-    for (const auto &iter : dict)
-    {
-        tinyxml2::XMLElement* tmpNode = doc->NewElement("key");
-        rootNode->LinkEndChild(tmpNode);
-        tinyxml2::XMLText* content = doc->NewText(iter.first.c_str());
-        tmpNode->LinkEndChild(content);
-
-        tinyxml2::XMLElement *element = generateElementForObject(iter.second, doc);
-        if (element)
-            rootNode->LinkEndChild(element);
-    }
-    return rootNode;
-}
-
-/*
- * Generate tinyxml2::XMLElement for Array through a tinyxml2::XMLDocument
- */
-static tinyxml2::XMLElement* generateElementForArray(const ValueVector& array, tinyxml2::XMLDocument *pDoc)
-{
-    tinyxml2::XMLElement* rootNode = pDoc->NewElement("array");
-
-    for(const auto &value : array) {
-        tinyxml2::XMLElement *element = generateElementForObject(value, pDoc);
-        if (element)
-            rootNode->LinkEndChild(element);
-    }
-    return rootNode;
-}
-
-#else
-
-/* The subclass FileUtilsApple should override these two method. */
-ValueMap FileUtils::getValueMapFromFile(const std::string& /*filename*/) const {return ValueMap();}
-ValueMap FileUtils::getValueMapFromData(const char* /*filedata*/, int /*filesize*/) const {return ValueMap();}
-ValueVector FileUtils::getValueVectorFromFile(const std::string& /*filename*/) const {return ValueVector();}
-bool FileUtils::writeToFile(const ValueMap& /*dict*/, const std::string &/*fullPath*/) const {return false;}
-
-#endif /* (CC_TARGET_PLATFORM != CC_PLATFORM_IOS) && (CC_TARGET_PLATFORM != CC_PLATFORM_MAC) */
 
 // Implement FileUtils
 FileUtils* FileUtils::s_sharedFileUtils = nullptr;
