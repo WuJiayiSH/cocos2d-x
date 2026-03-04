@@ -1,283 +1,345 @@
 #include "CCPList.h"
 
 #include <charconv>
+#include <limits>
 
 #include "base/ccMacros.h"
 #include "tinyxml2/tinyxml2.h"
+#include "rapidxml/rapidxml_sax3.hpp"
 
 NS_CC_BEGIN
 
 namespace
 {
-    static tinyxml2::XMLElement* encodeElement(const Value& value, tinyxml2::XMLDocument& doc);
-
-    static tinyxml2::XMLElement* encodeDict(const ValueMap& dict, tinyxml2::XMLDocument& doc)
+    static void appendEscapedText(std::string_view text, std::string& out)
     {
-        tinyxml2::XMLElement* rootNode = doc.NewElement("dict");
+        for (char ch : text)
+        {
+            switch (ch)
+            {
+            case '&':
+                out.append("&amp;");
+                break;
+            case '<':
+                out.append("&lt;");
+                break;
+            case '>':
+                out.append("&gt;");
+                break;
+            case '\"':
+                out.append("&quot;");
+                break;
+            case '\'':
+                out.append("&apos;");
+                break;
+            default:
+                out.push_back(ch);
+                break;
+            }
+        }
+    }
+
+    static void appendTagWithText(const char* tag, std::string_view text, std::string& out, int indentLevel)
+    {
+        for (int i = 0; i < indentLevel; ++i)
+            out.append("    ");
+
+        out.push_back('<');
+        out.append(tag);
+        out.push_back('>');
+        appendEscapedText(text, out);
+        out.append("</");
+        out.append(tag);
+        out.append(">\n");
+    }
+
+    static void appendText(std::string_view text, std::string& out, int indentLevel)
+    {
+        for (int i = 0; i < indentLevel; ++i)
+            out.append("    ");
+
+        if (!text.empty())
+            out.append(text);
+    }
+
+    static bool encodeElement(const Value& value, std::string& out, int indentLevel);
+
+    static bool encodeDict(const ValueMap& dict, std::string& out, int indentLevel)
+    {
+        appendText("<dict>\n", out, indentLevel);
         for (const auto &[key, value] : dict)
         {
-            tinyxml2::XMLElement* keyNode = doc.NewElement("key");
-            keyNode->LinkEndChild(doc.NewText(key.c_str()));
-            rootNode->LinkEndChild(keyNode);
-
-            if (tinyxml2::XMLElement* valueNode = encodeElement(value, doc))
-            {
-                rootNode->LinkEndChild(valueNode);
-            }
+            appendTagWithText("key", key, out, indentLevel + 1);
+            encodeElement(value, out, indentLevel + 1);
         }
-        return rootNode;
+        appendText("</dict>\n", out, indentLevel);
+        return true;
     }
 
-    static tinyxml2::XMLElement* encodeArray(const ValueVector& array, tinyxml2::XMLDocument& doc)
+    static bool encodeArray(const ValueVector& array, std::string& out, int indentLevel)
     {
-        tinyxml2::XMLElement* rootNode = doc.NewElement("array");
+        appendText("<array>\n", out, indentLevel);
         for (const Value& item : array)
         {
-            if (tinyxml2::XMLElement* valueNode = encodeElement(item, doc))
-            {
-                rootNode->LinkEndChild(valueNode);
-            }
+            encodeElement(item, out, indentLevel + 1);
         }
-        return rootNode;
+        appendText("</array>\n", out, indentLevel);
+        return true;
     }
 
-    static tinyxml2::XMLElement* encodeElement(const Value& value, tinyxml2::XMLDocument& doc)
+    static bool encodeElement(const Value& value, std::string& out, int indentLevel)
     {
         switch (value.getType())
         {
         case Value::Type::STRING:
-        {
-            tinyxml2::XMLElement* node = doc.NewElement("string");
-            node->LinkEndChild(doc.NewText(value.asString().c_str()));
-            return node;
-        }
+            appendTagWithText("string", value.asString(), out, indentLevel);
+            return true;
         case Value::Type::INTEGER:
         case Value::Type::UNSIGNED:
-        {
-            tinyxml2::XMLElement* node = doc.NewElement("integer");
-            node->LinkEndChild(doc.NewText(value.asString().c_str()));
-            return node;
-        }
+            appendTagWithText("integer", value.asString(), out, indentLevel);
+            return true;
         case Value::Type::BYTE:
-        {
-            tinyxml2::XMLElement* node = doc.NewElement("integer");
-            std::string text = std::to_string(static_cast<int>(value.asByte()));
-            node->LinkEndChild(doc.NewText(text.c_str()));
-            return node;
-        }
+            appendTagWithText("integer", std::to_string(static_cast<int>(value.asByte())), out, indentLevel);
+            return true;
         case Value::Type::FLOAT:
         case Value::Type::DOUBLE:
-        {
-            tinyxml2::XMLElement* node = doc.NewElement("real");
-            node->LinkEndChild(doc.NewText(value.asString().c_str()));
-            return node;
-        }
+            appendTagWithText("real", value.asString(), out, indentLevel);
+            return true;
         case Value::Type::BOOLEAN:
-        {
-            return doc.NewElement(value.asBool() ? "true" : "false");
-        }
+            appendText("", out, indentLevel);
+            out.append(value.asBool() ? "<true/>\n" : "<false/>\n");
+            return true;
         case Value::Type::VECTOR:
-            return encodeArray(value.asValueVector(), doc);
+            return encodeArray(value.asValueVector(), out, indentLevel);
         case Value::Type::MAP:
-            return encodeDict(value.asValueMap(), doc);
+            return encodeDict(value.asValueMap(), out, indentLevel);
         default:
             CCLOGERROR("CCPList: unsupported value type %d while encoding", static_cast<int>(value.getType()));
-            return nullptr;
+            return false;
         }
     }
 
-    static PList::ErrorCode decodeElement(const tinyxml2::XMLElement* element, Value& outValue);
-
-    static PList::ErrorCode decodeDict(const tinyxml2::XMLElement* dictElement, ValueMap& outDict)
+    // SAX handler that builds the Value hierarchy as events are received.
+    struct SaxHandler : public rapidxml::xml_sax2_handler
     {
-        const tinyxml2::XMLElement* child = dictElement->FirstChildElement();
-        while (child)
+        PList::ErrorCode error = PList::ErrorCode::SUCCESS;
+        bool sawPlist = false;
+        std::vector<Value> stack;
+        std::vector<std::string> keyStack;
+        std::string currentText;
+        bool capturing = false;
+
+        void xmlSAX2StartElement(const char* name, size_t len, const char** /*atts*/, size_t /*attslen*/) override
         {
-            if (strcmp(child->Name(), "key") != 0)
+            std::string element(name, len);
+            if (element == "plist")
             {
-                return PList::ErrorCode::MALFORMED_DICT;
+                sawPlist = true;
+                return;
             }
 
-            const char* keyText = child->GetText();
-            if (!keyText)
+            if (element == "dict")
             {
-                keyText = "";
+                stack.emplace_back(ValueMap());
+                return;
             }
 
-            const tinyxml2::XMLElement* valueElement = child->NextSiblingElement();
-            if (!valueElement)
+            if (element == "array")
             {
-                return PList::ErrorCode::MALFORMED_DICT;
+                stack.emplace_back(ValueVector());
+                return;
             }
 
-            Value childValue;
-            const PList::ErrorCode ret = decodeElement(valueElement, childValue);
-            if (ret != PList::ErrorCode::SUCCESS)
+            if (element == "string" || element == "integer" || element == "real" || element == "true" || element == "false" || element == "key")
             {
-                return ret;
+                currentText.clear();
+                capturing = true;
+                return;
             }
 
-            outDict[keyText] = std::move(childValue);
-            child = valueElement->NextSiblingElement();
+            // unknown element type
+            error = PList::ErrorCode::UNSUPPORTED_TYPE;
         }
 
-        return PList::ErrorCode::SUCCESS;
-    }
-
-    static PList::ErrorCode decodeArray(const tinyxml2::XMLElement* arrayElement, ValueVector& outArray)
-    {
-        for (const tinyxml2::XMLElement* child = arrayElement->FirstChildElement(); child; child = child->NextSiblingElement())
+        void xmlSAX2EndElement(const char* name, size_t len) override
         {
-            Value childValue;
-            const PList::ErrorCode ret = decodeElement(child, childValue);
-            if (ret != PList::ErrorCode::SUCCESS)
+            std::string element(name, len);
+            if (element == "plist")
             {
-                return ret;
-            }
-            outArray.emplace_back(std::move(childValue));
-        }
-        return PList::ErrorCode::SUCCESS;
-    }
-
-    static PList::ErrorCode decodeElement(const tinyxml2::XMLElement* element, Value& outValue)
-    {
-        if (!element)
-        {
-            return PList::ErrorCode::INVALID_ELEMENT;
-        }
-
-        const char* name = element->Name();
-        if (!name)
-        {
-            return PList::ErrorCode::INVALID_ELEMENT;
-        }
-
-        if (strcmp(name, "dict") == 0)
-        {
-            ValueMap dict;
-            const PList::ErrorCode ret = decodeDict(element, dict);
-            if (ret != PList::ErrorCode::SUCCESS)
-            {
-                return ret;
-            }
-            outValue = Value(std::move(dict));
-            return PList::ErrorCode::SUCCESS;
-        }
-
-        if (strcmp(name, "array") == 0)
-        {
-            ValueVector array;
-            const PList::ErrorCode ret = decodeArray(element, array);
-            if (ret != PList::ErrorCode::SUCCESS)
-            {
-                return ret;
-            }
-            outValue = Value(std::move(array));
-            return PList::ErrorCode::SUCCESS;
-        }
-
-        if (strcmp(name, "string") == 0)
-        {
-            const char* text = element->GetText();
-            outValue = Value(text ? text : "");
-            return PList::ErrorCode::SUCCESS;
-        }
-
-        if (strcmp(name, "integer") == 0)
-        {
-            const char* text = element->GetText();
-            if (!text)
-            {
-                outValue = Value(0);
-                return PList::ErrorCode::SUCCESS;
+                return;
             }
 
-            long long ll;
-            std::from_chars_result result = std::from_chars(text, text + std::strlen(text), ll);
-            if (result.ec != std::errc())
+            if (element == "dict" || element == "array")
             {
-                return PList::ErrorCode::PARSE_INTEGER_ERROR;
+                Value finished = std::move(stack.back());
+                stack.pop_back();
+                addValueToParent(std::move(finished));
+                return;
             }
-            outValue = ll >= 0 ? Value(static_cast<unsigned int>(ll)) : Value(static_cast<int>(ll));
-            return PList::ErrorCode::SUCCESS;
-        }
 
-        if (strcmp(name, "real") == 0)
-        {
-            const char* text = element->GetText();
-
-            double d;
-            std::from_chars_result result = std::from_chars(text, text + std::strlen(text), d);
-            if (result.ec != std::errc())
+            if (element == "key")
             {
-                return PList::ErrorCode::PARSE_REAL_ERROR;
+                keyStack.push_back(currentText);
+                capturing = false;
+                currentText.clear();
+                return;
             }
-            outValue = Value(d);
-            return PList::ErrorCode::SUCCESS;
+
+            if (element == "string")
+            {
+                Value v(currentText);
+                addValueToParent(std::move(v));
+                capturing = false;
+                currentText.clear();
+                return;
+            }
+
+            if (element == "integer")
+            {
+                long long ll = 0;
+                std::from_chars_result result = std::from_chars(currentText.data(), currentText.data() + currentText.size(), ll);
+                if (result.ec != std::errc())
+                {
+                    error = PList::ErrorCode::PARSE_INTEGER_ERROR;
+                }
+                else
+                {
+                    if (ll >= 0)
+                    {
+                        Value v(static_cast<unsigned int>(ll));
+                        addValueToParent(std::move(v));
+                    }
+                    else
+                    {
+                        Value v(static_cast<int>(ll));
+                        addValueToParent(std::move(v));
+                    }
+                }
+                capturing = false;
+                currentText.clear();
+                return;
+            }
+
+            if (element == "real")
+            {
+                double d = 0;
+                std::from_chars_result result = std::from_chars(currentText.data(), currentText.data() + currentText.size(), d);
+                if (result.ec != std::errc())
+                {
+                    error = PList::ErrorCode::PARSE_REAL_ERROR;
+                }
+                else
+                {
+                    Value v(d);
+                    addValueToParent(std::move(v));
+                }
+                capturing = false;
+                currentText.clear();
+                return;
+            }
+
+            if (element == "true")
+            {
+                Value v(true);
+                addValueToParent(std::move(v));
+                return;
+            }
+
+            if (element == "false")
+            {
+                Value v(false);
+                addValueToParent(std::move(v));
+                return;
+            }
         }
 
-        if (strcmp(name, "true") == 0)
+        void xmlSAX2Text(const char* s, size_t len) override
         {
-            outValue = Value(true);
-            return PList::ErrorCode::SUCCESS;
+            if (capturing)
+            {
+                currentText.append(s, len);
+            }
         }
 
-        if (strcmp(name, "false") == 0)
+        void addValueToParent(Value&& val)
         {
-            outValue = Value(false);
-            return PList::ErrorCode::SUCCESS;
-        }
+            if (stack.empty())
+            {
+                stack.emplace_back(std::move(val));
+                return;
+            }
 
-        return PList::ErrorCode::UNSUPPORTED_TYPE;
-    }
+            Value& parent = stack.back();
+            if (parent.getType() == Value::Type::MAP)
+            {
+                if (keyStack.empty())
+                {
+                    error = PList::ErrorCode::MALFORMED_DICT;
+                    return;
+                }
+                std::string key = std::move(keyStack.back());
+                keyStack.pop_back();
+                parent.asValueMap()[key] = std::move(val);
+            }
+            else if (parent.getType() == Value::Type::VECTOR)
+            {
+                parent.asValueVector().push_back(std::move(val));
+            }
+            else
+            {
+                error = PList::ErrorCode::UNSUPPORTED_TYPE;
+            }
+        }
+    };
 }
 
 std::string PList::encode(const Value& value)
 {
-    tinyxml2::XMLDocument doc;
+    std::string result;
+    result.reserve(256);
 
-    tinyxml2::XMLDeclaration* declaration = doc.NewDeclaration("xml version=\"1.0\" encoding=\"UTF-8\"");
-    doc.LinkEndChild(declaration);
+    result.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+    result.append("<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n");
+    result.append("<plist version=\"1.0\">\n");
+    encodeElement(value, result, 1);
+    result.append("</plist>\n");
 
-    tinyxml2::XMLUnknown *docType = doc.NewUnknown("!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\"");
-    doc.LinkEndChild(docType);
-
-    tinyxml2::XMLElement* root = doc.NewElement("plist");
-    root->SetAttribute("version", "1.0");
-    doc.LinkEndChild(root);
-
-    if (tinyxml2::XMLElement* payload = encodeElement(value, doc))
-    {
-        root->LinkEndChild(payload);
-    }
-
-    tinyxml2::XMLPrinter printer;
-    doc.Print(&printer);
-    return printer.CStr();
+    return result;
 }
 
 PList::ErrorCode PList::decode(std::string_view content, Value& value)
 {
-    tinyxml2::XMLDocument doc;
-    const tinyxml2::XMLError ret = doc.Parse(content.data(), content.size());
-    if (ret != tinyxml2::XML_SUCCESS)
+    SaxHandler handler;
+    rapidxml::xml_sax3_parser<> parser(&handler);
+    try
+    {
+        // the parser will not modify the input string because we use the parse_non_destructive flag,
+        // but it requires a non-const char* pointer, so we need to const_cast here.
+        // This is safe as long as we don't actually modify the string, and the parser won't because of the flag.
+        parser.parse<rapidxml::parse_non_destructive>(const_cast<char*>(content.data()), static_cast<int>(content.size()));
+    }
+    catch (rapidxml::parse_error&)
     {
         return PList::ErrorCode::PARSE_ERROR;
     }
 
-    const tinyxml2::XMLElement* plist = doc.FirstChildElement("plist");
-    if (!plist)
+    if (!handler.sawPlist)
     {
         return PList::ErrorCode::MISSING_PLIST;
     }
 
-    const tinyxml2::XMLElement* root = plist->FirstChildElement();
-    if (!root)
+    if (handler.error != PList::ErrorCode::SUCCESS)
+    {
+        return handler.error;
+    }
+
+    if (handler.stack.empty())
     {
         return PList::ErrorCode::MISSING_ROOT;
     }
 
-    return decodeElement(root, value);
+    value = std::move(handler.stack.front());
+    return PList::ErrorCode::SUCCESS;
 }
 
 NS_CC_END
