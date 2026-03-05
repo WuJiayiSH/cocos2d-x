@@ -16,16 +16,19 @@ public:
     {
         SUCCESS,
         PARSE_ERROR,            // tinyxml2 failed to parse the document
-        MISSING_PLIST,          // no <plist> element found
         MISSING_ROOT,           // <plist> exists but contains no child
-        INVALID_ELEMENT,        // encountered a nullptr element or name
         MALFORMED_DICT,         // dictionary has an unexpected structure
         UNSUPPORTED_TYPE,       // element type is not recognised by decoder
         PARSE_INTEGER_ERROR,    // failed to parse integer value
         PARSE_REAL_ERROR,       // failed to parse real value
     };
 
-    static std::string encode(const Value& value);
+    struct Option
+    {
+        size_t _sizeHint = 256; // hint for how large the resulting, you can avoid potential reallocations by providing a good hint
+    };
+
+    static std::string encode(const Value& value, const Option& option = {});
 
     static ErrorCode decode(std::string_view content, Value& value);
 };
