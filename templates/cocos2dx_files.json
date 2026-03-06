@@ -523,6 +523,8 @@
         "cocos/base/utlist.h", 
         "cocos/base/encoding/CCPList.cpp",
         "cocos/base/encoding/CCPList.h",
+        "cocos/base/encoding/CCJSON.cpp",
+        "cocos/base/encoding/CCJSON.h",
         "cocos/cocos2d.cpp", 
         "cocos/cocos2d.h", 
         "cocos/deprecated/CCArray.cpp", 

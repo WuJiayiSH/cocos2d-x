@@ -91,6 +91,7 @@ set(COCOS_BASE_HEADER
     base/CCEventType.h
     base/CCIMEDispatcher.h
     base/encoding/CCPList.h
+    base/encoding/CCJSON.h
     )
 
 set(COCOS_BASE_SRC
@@ -150,6 +151,7 @@ set(COCOS_BASE_SRC
     base/pvr.cpp
     base/s3tc.cpp
     base/encoding/CCPList.cpp
+    base/encoding/CCJSON.cpp
     ${COCOS_BASE_SPECIFIC_SRC}
 
     )
