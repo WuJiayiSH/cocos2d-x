@@ -28,7 +28,8 @@ public:
         bool _prettyPrint = false; // whether to format the JSON with indentation and newlines
     };
 
-    static std::string encode(const Value& value, const Option& option = Option());
+    static std::string encode(const Value& value, const Option& option);
+    static std::string encode(const Value& value) { return encode(value, Option{}); }
 
     static ErrorCode decode(std::string_view content, Value& value);
 };

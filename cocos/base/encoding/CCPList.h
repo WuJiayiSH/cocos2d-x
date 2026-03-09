@@ -28,7 +28,8 @@ public:
         size_t _sizeHint = 256; // hint for how large the resulting, you can avoid potential reallocations by providing a good hint
     };
 
-    static std::string encode(const Value& value, const Option& option = {});
+    static std::string encode(const Value& value, const Option& option);
+    static std::string encode(const Value& value) { return encode(value, Option{}); }
 
     static ErrorCode decode(std::string_view content, Value& value);
 };
