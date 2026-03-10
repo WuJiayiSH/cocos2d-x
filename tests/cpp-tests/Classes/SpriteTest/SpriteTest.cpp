@@ -696,7 +696,7 @@ SpriteBatchNodeReorder::SpriteBatchNodeReorder()
         }
     }
     
-    ssize_t [[maybe_unused]] prev = -1;
+    [[maybe_unused]] ssize_t prev = -1;
     
     auto& children = asmtest->getChildren();
 
