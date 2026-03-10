@@ -49,3 +49,12 @@ jobs:
     - name: Build
       run: |
         ./tools/cocos2d-console/bin/cocos compile -p linux -s tests/cpp-tests
+  macos:
+    runs-on: macos-15
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: 'recursive'
+    - name: Build
+      run: |
+        ./tools/cocos2d-console/bin/cocos compile -p mac -s tests/cpp-tests
