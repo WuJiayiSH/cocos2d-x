@@ -23,9 +23,6 @@
  ****************************************************************************/
 
 #include "Profile.h"
-#include "json/document-wrapper.h"
-#include "json/prettywriter.h"
-#include "json/stringbuffer.h"
 #include "platform/CCFileUtils.h"
 #include "cocos2d.h"
 #include <time.h>
@@ -83,71 +80,6 @@ std::vector<std::string> genStrVector(const char* str1, ...)
         str = va_arg(arg_ptr, const char*);
     }
     va_end(arg_ptr);
-    
-    return ret;
-}
-
-// declare the methods
-rapidjson::Value valueVectorToJson(cocos2d::ValueVector & theVector, rapidjson::Document::AllocatorType& allocator);
-rapidjson::Value valueMapToJson(cocos2d::ValueMap & theMap, rapidjson::Document::AllocatorType& allocator);
-
-rapidjson::Value convertToJsonValue(cocos2d::Value & value, rapidjson::Document::AllocatorType& allocator)
-{
-    rapidjson::Value theJsonValue;
-    auto type = value.getType();
-    switch (type) {
-        case cocos2d::Value::Type::STRING:
-            theJsonValue.SetString(value.asString().c_str(), allocator);
-            break;
-        case cocos2d::Value::Type::MAP:
-            theJsonValue = valueMapToJson(value.asValueMap(), allocator);
-            break;
-        case cocos2d::Value::Type::VECTOR:
-            theJsonValue = valueVectorToJson(value.asValueVector(), allocator);
-            break;
-        case cocos2d::Value::Type::INTEGER:
-            theJsonValue.SetInt(value.asInt());
-            break;
-        case cocos2d::Value::Type::BOOLEAN:
-            theJsonValue.SetBool(value.asBool());
-            break;
-        case cocos2d::Value::Type::FLOAT:
-        case cocos2d::Value::Type::DOUBLE:
-            theJsonValue.SetDouble(value.asDouble());
-            break;
-        default:
-            break;
-    }
-    
-    return theJsonValue;
-}
-
-rapidjson::Value valueMapToJson(cocos2d::ValueMap & theMap, rapidjson::Document::AllocatorType& allocator)
-{
-    rapidjson::Value ret(rapidjson::kObjectType);
-    
-    for (ValueMap::iterator iter = theMap.begin(); iter != theMap.end(); ++iter) {
-        auto key = iter->first;
-        rapidjson::Value theJsonKey(rapidjson::kStringType);
-        theJsonKey.SetString(key.c_str(), allocator);
-        
-        cocos2d::Value value = iter->second;
-        rapidjson::Value theJsonValue = convertToJsonValue(value, allocator);
-        ret.AddMember(theJsonKey, theJsonValue, allocator);
-    }
-    return ret;
-}
-
-rapidjson::Value valueVectorToJson(cocos2d::ValueVector & theVector, rapidjson::Document::AllocatorType& allocator)
-{
-    rapidjson::Value ret(rapidjson::kArrayType);
-    
-    auto vectorSize = theVector.size();
-    for (int i = 0; i < vectorSize; i++) {
-        cocos2d::Value value = theVector[i];
-        rapidjson::Value theJsonValue = convertToJsonValue(value, allocator);
-        ret.PushBack(theJsonValue, allocator);
-    }
     
     return ret;
 }
@@ -266,25 +198,18 @@ void Profile::flush()
     std::string fileName = genStr(LOG_FILE_NAME_FMT, DEVICE_NAME, timeStr);
     std::string fullPath = genStr("%s/%s", writablePath.c_str(), fileName.c_str());
 
-    rapidjson::Document document;
-    rapidjson::Document::AllocatorType& allocator = document.GetAllocator();
-    rapidjson::Value theData = valueMapToJson(testData, allocator);
-    
-    rapidjson::StringBuffer buffer;
-
+    cocos2d::JSON::Option option;
 #if USE_PRETTY_OUTPUT_FORMAT
     // write pretty format json
-    rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(buffer);
+    option._prettyPrint = true;
 #else  // #else USE_PRETTY_OUTPUT_FORMAT
     // write json in one line
-    rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+    option._prettyPrint = false;
 #endif // #endif USE_PRETTY_OUTPUT_FORMAT
-
-    theData.Accept(writer);
-    auto out = buffer.GetString();
+    auto out = cocos2d::JSON::encode(cocos2d::Value(testData), option);
     
     FILE *fp = fopen(fullPath.c_str(), "w");
-    fputs(out, fp);
+    fputs(out.c_str(), fp);
     fclose(fp);
 #else  // #else USE_JSON_FORMAT
     // Write the test data into plist file.
