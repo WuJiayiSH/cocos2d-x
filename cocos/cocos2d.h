@@ -45,6 +45,7 @@ THE SOFTWARE.
 #include "base/CCConsole.h"
 #include "base/CCData.h"
 #include "base/CCDirector.h"
+#include "base/CCImGuiManager.h"
 #include "base/CCIMEDelegate.h"
 #include "base/CCIMEDispatcher.h"
 #include "base/CCMap.h"

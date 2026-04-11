@@ -62,6 +62,7 @@ THE SOFTWARE.
 #include "base/CCConfiguration.h"
 #include "base/CCAsyncTaskPool.h"
 #include "base/ObjectFactory.h"
+#include "base/CCImGuiManager.h"
 #include "platform/CCApplication.h"
 
 #if CC_ENABLE_SCRIPT_BINDING
@@ -157,6 +158,7 @@ bool Director::init()
     _renderer = new (std::nothrow) Renderer;
     RenderState::initialize();
 
+    _imGuiManager = new (std::nothrow) ImGuiManager;
     return true;
 }
 
@@ -185,6 +187,9 @@ Director::~Director()
 
     delete _renderer;
     delete _console;
+
+    _imGuiManager->shutdown();
+    CC_SAFE_DELETE(_imGuiManager);
 
     CC_SAFE_RELEASE(_eventDispatcher);
     
@@ -311,8 +316,10 @@ void Director::drawScene()
         showStats();
 #endif
     }
-    
+
+    _imGuiManager->beginFrame();
     _renderer->render();
+    _imGuiManager->endFrame();
 
     _eventDispatcher->dispatchEvent(_eventAfterDraw);
 
@@ -402,6 +409,10 @@ void Director::setOpenGLView(GLView *openGLView)
         {
             _eventDispatcher->setEnabled(true);
         }
+
+        if (_imGuiManager->_initialized)
+            _imGuiManager->shutdown();
+        _imGuiManager->init();
     }
 }
 

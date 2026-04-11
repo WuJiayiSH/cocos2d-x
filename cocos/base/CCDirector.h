@@ -61,6 +61,7 @@ class EventListenerCustom;
 class TextureCache;
 class Renderer;
 class Camera;
+class ImGuiManager;
 
 class Console;
 namespace experimental
@@ -465,6 +466,10 @@ public:
      */
     Console* getConsole() const { return _console; }
 
+    /** Returns the ImGuiManager associated with this director.
+    */
+    ImGuiManager* getImGuiManager() const { return _imGuiManager; }
+
     /* Gets delta time since last tick to main loop. */
 	float getDeltaTime() const;
     
@@ -713,6 +718,9 @@ protected:
 
     /* Console for the director */
     Console *_console = nullptr;
+
+    /* ImGuiManager for the director */
+    ImGuiManager* _imGuiManager = nullptr;
 
     bool _isStatusLabelUpdated = true;
 

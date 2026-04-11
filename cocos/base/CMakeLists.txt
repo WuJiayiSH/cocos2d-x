@@ -92,6 +92,8 @@ set(COCOS_BASE_HEADER
     base/CCIMEDispatcher.h
     base/encoding/CCPList.h
     base/encoding/CCJSON.h
+    base/CCImGuiManager.h
+    base/imgui_impl_cocos2dx.h
     )
 
 set(COCOS_BASE_SRC
@@ -152,6 +154,8 @@ set(COCOS_BASE_SRC
     base/s3tc.cpp
     base/encoding/CCPList.cpp
     base/encoding/CCJSON.cpp
+    base/CCImGuiManager.cpp
+    base/imgui_impl_cocos2dx.cpp
     ${COCOS_BASE_SPECIFIC_SRC}
 
     )
