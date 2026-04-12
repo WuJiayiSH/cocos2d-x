@@ -23,9 +23,8 @@
  ****************************************************************************/
 
 #include "HelloImGuiScene.h"
-#include "CCIMGUI.h"
-#include "CCImGuiLayer.h"
 #include "CCImGuiWidgets.h"
+#include "imgui.h"
 
 USING_NS_CC;
 
@@ -68,8 +67,7 @@ bool HelloImGuiScene::init()
     menu->setPosition(Vec2::ZERO);
     this->addChild(menu);
 
-	this->addChild(ImGuiLayer::create(), INT_MAX, "ImGUILayer");
-	CCIMGUI::getInstance()->addCallback([]() {
+	Director::getInstance()->getImGuiManager()->addCallback([]() {
         if (openDemo)
 		    ImGui::ShowDemoWindow(&openDemo);
 

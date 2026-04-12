@@ -95,7 +95,7 @@ include(FetchContent)
 FetchContent_Declare(
   imgui_widgets
   GIT_REPOSITORY https://github.com/wujiayish/cocos2d-x-imgui-widgets
-  GIT_TAG        d5de356e1138f2bc50c1280a762f654d41d39c7a 
+  GIT_TAG        767f2d92e95e6cb82365ad531803e7f6362fb79e 
 )
 FetchContent_MakeAvailable(imgui_widgets)
 include_directories(${imgui_widgets_SOURCE_DIR})
@@ -120,17 +120,6 @@ endif()
 target_link_libraries(${APP_NAME} cocos2d)
 
 target_include_directories(${APP_NAME} PRIVATE Classes)
-
-# fetch imgui
-include(FetchContent)
-FetchContent_Declare(
-  imgui
-  GIT_REPOSITORY https://github.com/wujiayish/cocos2d-x-imgui
-  GIT_TAG        2b0321d42cead1783cdfefc36109802cd0243f4f 
-)
-FetchContent_MakeAvailable(imgui)
-target_link_libraries(${APP_NAME} cc_imgui)
-target_include_directories(${APP_NAME} PRIVATE ${imgui_SOURCE_DIR})
 
 # mark app resources
 setup_cocos_app_config(${APP_NAME})
