@@ -278,6 +278,17 @@ GLViewImpl* GLViewImpl::createWithFullScreen(const std::string& viewName, const 
     return nullptr;
 }
 
+GLViewImpl* GLViewImpl::createWithMaximized(const std::string& viewName, float frameZoomFactor, bool resizable)
+{
+    auto ret = new (std::nothrow) GLViewImpl();
+    if(ret && ret->initWithMaximized(viewName, frameZoomFactor, resizable)) {
+        ret->autorelease();
+        return ret;
+    }
+    CC_SAFE_DELETE(ret);
+    return nullptr;
+}
+
 bool GLViewImpl::initWithRect(const std::string& viewName, Rect rect, float frameZoomFactor, bool resizable)
 {
     setViewName(viewName);
@@ -402,6 +413,14 @@ bool GLViewImpl::initWithFullscreen(const std::string &viewname, const GLFWvidmo
     glfwWindowHint(GLFW_GREEN_BITS, videoMode.greenBits);
     
     return initWithRect(viewname, Rect(0, 0, videoMode.width, videoMode.height), 1.0f, false);
+}
+
+bool GLViewImpl::initWithMaximized(const std::string& viewName, float frameZoomFactor, bool resizable)
+{
+    glfwWindowHint(GLFW_MAXIMIZED, GLFW_TRUE);
+
+    // size will be ignored when GLFW_MAXIMIZED is set
+    return initWithRect(viewName, Rect(0, 0, 960, 640), frameZoomFactor, resizable);
 }
 
 bool GLViewImpl::isOpenGLReady()
