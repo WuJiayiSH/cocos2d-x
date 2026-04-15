@@ -1,0 +1,10 @@
+{
+    "win32_cfg": {
+        "project_path": "project/proj.win32",
+        "project_name": "lua-editor",
+        "cmake_path": "project"
+    }, 
+    "project_type": "lua", 
+    "has_native": true,
+    "engine_dir": "../../"
+}
