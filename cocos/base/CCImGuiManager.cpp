@@ -2,6 +2,7 @@
 
 #include "imgui_impl_cocos2dx.h"
 #include "CCDirector.h"
+#include "CCEventDispatcher.h"
 
 NS_CC_BEGIN
 
