@@ -15,7 +15,6 @@ macro(cocos2dx_depend)
         cocos_find_package(GLEW GLEW REQUIRED)
         cocos_find_package(OpenGL OPENGL REQUIRED)
         cocos_find_package(CURL CURL REQUIRED)
-        cocos_find_package(SQLite3 SQLITE3 REQUIRED)
         set(CMAKE_THREAD_PREFER_PTHREAD TRUE)	
         find_package(Threads REQUIRED)	
         set(THREADS_LIBRARIES ${CMAKE_THREAD_LIBS_INIT})
@@ -39,11 +38,6 @@ macro(cocos2dx_depend)
             ${GAMECONTROLLER_LIBRARY}
             )
 
-        if(BUILD_JS_LIBS)
-            find_library(SQLITE3_LIBRARY SQLite3)
-            list(APPEND COCOS_APPLE_LIBS ${SQLITE3_LIBRARY})
-        endif()
-            
         if(MACOSX)
             list(APPEND PREBUILT_SPECIFIC_LIBS GLFW3)
 
@@ -106,7 +100,6 @@ macro(use_cocos2dx_libs_depend target)
         cocos_use_pkg(${target} OPENGL)
         cocos_use_pkg(${target} CURL)
         cocos_use_pkg(${target} THREADS)
-        cocos_use_pkg(${target} SQLITE3)
     endif()
 endmacro()
 

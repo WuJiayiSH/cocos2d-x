@@ -696,7 +696,6 @@ class SetEnvVar(object):
             "libpng-dev",
             "libcurl4-gnutls-dev",
             "libfontconfig1-dev",
-            "libsqlite3-dev",
             "libglew-dev",
             "libssl-dev",
             "libgtk-3-dev",
