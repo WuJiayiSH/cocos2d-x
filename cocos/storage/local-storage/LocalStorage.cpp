@@ -29,7 +29,11 @@
  */
 
 #include "storage/local-storage/LocalStorage.h"
+
 #include "platform/CCPlatformMacros.h"
+
+#include "base/CCValue.h"
+#include "platform/CCFileUtils.h"
 
 #if (CC_TARGET_PLATFORM != CC_PLATFORM_ANDROID && CC_TARGET_PLATFORM != CC_PLATFORM_EMSCRIPTEN)
 
