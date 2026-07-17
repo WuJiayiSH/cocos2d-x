@@ -276,7 +276,9 @@ private: varType varName; public: virtual inline varType get##funName() const { 
     || (defined(__clang__) && (__clang_major__ >= 3)) || (_MSC_VER >= 1800)
 #define CC_DISALLOW_COPY_AND_ASSIGN(TypeName) \
     TypeName(const TypeName &) = delete; \
-    TypeName &operator =(const TypeName &) = delete
+    TypeName &operator=(const TypeName &) = delete; \
+    TypeName(TypeName &&) = delete; \
+    TypeName &operator=(TypeName &&) = delete
 #else
 #define CC_DISALLOW_COPY_AND_ASSIGN(TypeName) \
     TypeName(const TypeName &); \
