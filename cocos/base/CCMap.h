@@ -87,7 +87,7 @@ public:
     const_iterator cend() const { return _data.cend(); }
     
     /** Default constructor */
-    Map<K, V>()
+    Map()
     : _data()
     {
         static_assert(std::is_convertible<V, Ref*>::value, "Invalid Type for cocos2d::Map<K, V>!");
@@ -95,7 +95,7 @@ public:
     }
     
     /** Constructor with capacity. */
-    explicit Map<K, V>(ssize_t capacity)
+    explicit Map(ssize_t capacity)
     : _data()
     {
         static_assert(std::is_convertible<V, Ref*>::value, "Invalid Type for cocos2d::Map<K, V>!");
@@ -104,7 +104,7 @@ public:
     }
     
     /** Copy constructor. */
-    Map<K, V>(const Map<K, V>& other)
+    Map(const Map<K, V>& other)
     {
         static_assert(std::is_convertible<V, Ref*>::value, "Invalid Type for cocos2d::Map<K, V>!");
         CCLOGINFO("In the copy constructor of Map!");
@@ -113,7 +113,7 @@ public:
     }
     
     /** Move constructor. */
-    Map<K, V>(Map<K, V>&& other)
+    Map(Map<K, V>&& other)
     {
         static_assert(std::is_convertible<V, Ref*>::value, "Invalid Type for cocos2d::Map<K, V>!");
         CCLOGINFO("In the move constructor of Map!");
@@ -124,7 +124,7 @@ public:
      * Destructor.
      * It will release all objects in map.
      */
-    ~Map<K, V>()
+    ~Map()
     {
         CCLOGINFO("In the destructor of Map!");
         clear();
