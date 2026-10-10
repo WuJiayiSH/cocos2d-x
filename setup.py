@@ -700,7 +700,8 @@ class SetEnvVar(object):
             "libssl-dev",
             "libgtk-3-dev",
             "binutils",
-            "cmake"
+            "cmake",
+            "clang"
         ]
 
         print("->Install dependencies for Linux platform: %s" % (", ".join(dependencies)))
